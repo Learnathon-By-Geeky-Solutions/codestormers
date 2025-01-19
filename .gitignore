@@ -1,0 +1,61 @@
+# ASP.NET Core specific files
+bin/
+obj/
+*.log
+*.user
+*.suo
+*.csproj.user
+*.db
+*.db-journal
+*.pdb
+*.cache
+*.vs/
+.vscode/
+
+# React.js and Node.js specific files
+node_modules/
+build/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+.env.local
+.DS_Store
+
+# Logs
+logs/
+*.log
+logs/**/*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Package lock files
+package-lock.json
+yarn.lock
+
+# Coverage directory used by testing tools
+coverage/
+
+# Three.js or 3D model specific
+*.blend
+*.fbx
+*.obj
+*.gltf
+*.glb
+
+# macOS system files
+.DS_Store
+
+# Windows thumbnail cache files
+Thumbs.db
+
+# Compiled source
+*.dll
+*.exe
+*.pyc
+*.class
+
+# Other
+.idea/
