@@ -21,6 +21,8 @@ yarn-error.log*
 .env
 .env.local
 .DS_Store
+.vite/
+
 
 # Logs
 logs/
