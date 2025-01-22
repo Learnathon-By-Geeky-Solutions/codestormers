@@ -11,6 +11,7 @@ obj/
 *.cache
 *.vs/
 .vscode/
+*.jwt
 
 # Build and Publish Outputs
 wwwroot/
