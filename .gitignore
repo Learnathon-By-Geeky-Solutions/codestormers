@@ -12,6 +12,49 @@ obj/
 *.vs/
 .vscode/
 
+# Build and Publish Outputs
+wwwroot/
+
+# Sensitive Configuration Files
+appsettings.json
+appsettings.Development.json
+secrets.json
+
+# User-Specific Files
+*.userosscache
+*.sln.docstates
+
+# Payment Keys and Secrets
+*.pfx
+*.key
+*.cer
+
+
+# IDE and Editor Files
+.idea/
+*.code-workspace
+
+
+# Stripe or SSLCommerz Configurations
+stripe.json
+sslcommerz.json
+
+# Visual Studio Generated Files
+.vs/
+_ReSharper/
+JetBrains/
+
+# Dependencies Cache
+packages/
+*.nuget/
+
+# Miscellaneous
+*.bak
+*.swp
+*.cache
+
+
+
 # React.js and Node.js specific files
 node_modules/
 build/
