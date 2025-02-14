@@ -14,8 +14,6 @@ namespace CosmoVerse.Models.Domain
         [Required]
         [StringLength(256)]
         public string Email { get; set; } = string.Empty;
-        public string EmailVerifyToken { get; set; } = string.Empty;
-        public DateTime? EmailVerifyTokenExpiryTime { get; set; }
         public bool IsEmailVerified { get; set; } = false;
         [Required]
         public string PasswordHash { get; set; } = string.Empty;
