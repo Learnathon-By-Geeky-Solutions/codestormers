@@ -5,8 +5,8 @@ namespace CosmoVerse.Services
     public interface IEmailService
     {
         Task<bool> SendEmailAsync(string toEmail, string subject, string message);
-        Task<bool> SentEmailForVerify(string toEmail);
-        Task<bool> SaveEmailVerificationToken(string email, string token);
+        Task<bool> SentEmailForVerifyAsync(string toEmail);
+        Task<bool> SaveEmailVerificationTokenAsync(string email, string token);
         Task<bool> VerifyEmailAsync(string email, string token);
     }
 }

@@ -25,8 +25,12 @@ namespace CosmoVerse.Controllers
         {
             try
             {
+                // Register user
                 var user = await authService.RegisterAsync(request);
-                await emailService.SentEmailForVerify(user.Email);
+
+                // Send email for verification
+                await emailService.SentEmailForVerifyAsync(user.Email);
+
                 return Created($"/api/users/{user.Id}", null); 
             }
             catch (Exception ex)
@@ -38,7 +42,10 @@ namespace CosmoVerse.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<TokenResponseDto>> Login(UserLoginDto request)
         {
+            // Authenticate user
             var tokenResponse = await authService.LoginAsync(request);
+
+            // Return error if authentication fails
             if (tokenResponse is null)
             {
                 return BadRequest("Invalid email or password");
@@ -67,9 +74,8 @@ namespace CosmoVerse.Controllers
 
             Response.Cookies.Append("RefreshToken", tokenResponse.RefreshToken, refreshTokenOptions);
 
-            // Return tokens in the response body (optional, depending on your use case)
 
-            return Ok(tokenResponse);
+            return Ok();
         }
 
         [HttpPost("refresh-token")]
@@ -100,10 +106,11 @@ namespace CosmoVerse.Controllers
                 Expires = DateTime.UtcNow.AddDays(30) // Longer expiration for RefreshToken
             };
 
+            // Save RefreshToken in cookies
             Response.Cookies.Append("RefreshToken", tokenResponse.RefreshToken, refreshTokenOptions);
 
 
-            return Ok(tokenResponse);
+            return Ok();
         }
 
         [HttpPost("SentEmailForVerify")]
@@ -111,7 +118,8 @@ namespace CosmoVerse.Controllers
         {
             try
             {
-                await emailService.SentEmailForVerify(toEmail);
+                // Send email for verification
+                await emailService.SentEmailForVerifyAsync(toEmail);
                 return Ok("Email sent successfully");
             }
             catch (Exception ex)
@@ -126,6 +134,7 @@ namespace CosmoVerse.Controllers
         {
             try
             {
+                // Verify email
                 await emailService.VerifyEmailAsync(email, token);
                 return Ok("Email verified successfully");
             }
