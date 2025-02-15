@@ -13,6 +13,9 @@ obj/
 .vscode/
 *.jwt
 
+# Ignore migrations folder
+Migrations/
+
 # Build and Publish Outputs
 wwwroot/
 
