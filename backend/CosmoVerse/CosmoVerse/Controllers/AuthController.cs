@@ -1,6 +1,7 @@
 ﻿using CosmoVerse.Models.Domain;
 using CosmoVerse.Models.Dto;
 using CosmoVerse.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -78,7 +79,20 @@ namespace CosmoVerse.Controllers
             return Ok();
         }
 
-        [HttpPost("refresh-token")]
+        [Authorize]
+        [HttpGet("UserInfo")]
+        public async Task<ActionResult<User>> GetUser(Guid Id)
+        {
+            var user = await authService.GetUserAsync(Id);
+            if (user is null)
+            {
+                return BadRequest();
+            }
+            return Ok(user);
+        }
+
+
+        [HttpPost("refreshToken")]
         public async Task<ActionResult<TokenResponseDto>> RefreshToken(RefreshTokenRequestDto request)
         {
             var tokenResponse = await authService.RefreshTokensAsync(request);
@@ -129,7 +143,7 @@ namespace CosmoVerse.Controllers
             }
         }
 
-        [HttpPost("verify-email")]
+        [HttpPost("verifyEmail")]
         public async Task<ActionResult> VerifyEmail(string email, string token)
         {
             try
