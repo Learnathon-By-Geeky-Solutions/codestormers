@@ -210,7 +210,12 @@ namespace CosmoVerse.Services
             return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
         }
 
-        
+
+        /// <summary>
+        /// Get user information by Id  
+        /// </summary>
+        /// <param name="Id">User Id</param>
+        /// <returns>User information</returns>
 
         public async Task<UserInfoDto?> GetUserAsync(Guid Id)
         {
