@@ -211,5 +211,23 @@ namespace CosmoVerse.Services
         }
 
         
+
+        public async Task<UserInfoDto?> GetUserAsync(Guid Id)
+        {
+            var user = await repository.FindByIdAsync(Id);
+            if (user is null)
+            {
+                return null;
+            }
+            var userInfo = new UserInfoDto
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                ProfilePictureUrl = user.ProfilePictureUrl
+            };
+            return userInfo;
+        }
+
     }
 }

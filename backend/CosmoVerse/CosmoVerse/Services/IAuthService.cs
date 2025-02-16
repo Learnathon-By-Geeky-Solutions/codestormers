@@ -8,6 +8,7 @@ namespace CosmoVerse.Services
     {
         Task<User?> RegisterAsync(UserDto request);
         Task<TokenResponseDto?> LoginAsync(UserLoginDto request);
+        Task<UserInfoDto?> GetUserAsync(Guid Id);
         Task<TokenResponseDto?> RefreshTokensAsync(RefreshTokenRequestDto request);
     }
 }
