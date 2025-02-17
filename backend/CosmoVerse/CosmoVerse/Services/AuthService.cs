@@ -1,6 +1,7 @@
 ﻿using CosmoVerse.Models.Domain;
 using CosmoVerse.Models.Dto;
 using CosmoVerse.Repositories;
+using CosmoVerse.Services.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -30,25 +31,20 @@ namespace CosmoVerse.Services
         /// </summary>
         /// <param name="request">The login request model containing email and password</param>
         /// <returns>A token response if the credentials are valid, or throws an exception if authentication fails</returns>
-        public async Task<TokenResponseDto?> LoginAsync(UserLoginDto request)
+        public async Task<AuthResult> LoginAsync(UserLoginDto request)
         {
             // Find the user by email
             var user = await repository.FindAsync(u => u.Email == request.Email);
 
             // Check if user does not exist
-            if (user is null)
+            if (user is null || new PasswordHasher<User>().VerifyHashedPassword(user, user.PasswordHash, request.Password) == PasswordVerificationResult.Failed)
             {
-                // Throw an exception with a specific message if the user does not exist
-                throw new Exception("User not found");
-            }
-            else if (new PasswordHasher<User>().VerifyHashedPassword(user, user.PasswordHash, request.Password) == PasswordVerificationResult.Failed)
-            {
-                // Throw an exception with a specific message if the password is invalid
-                throw new Exception("Invalid password");
+                // Return an error message if the user does not exist or the password is incorrect
+                return AuthResult.Failure("Invalid email or password");
             }
 
             // Return a token response if the user is authenticated
-            return await CreateTokenResponse(user);
+            return AuthResult.SuccessResult(await CreateTokenResponse(user));
         }
 
 
@@ -65,7 +61,7 @@ namespace CosmoVerse.Services
             // Throw an exception if the email already exists
             if (existingEmail is not null)
             {
-                throw new Exception("Email already exists");
+                throw new InvalidOperationException("Email already exists");
             }
 
             // Create a new user record
@@ -216,7 +212,6 @@ namespace CosmoVerse.Services
         /// </summary>
         /// <param name="Id">User Id</param>
         /// <returns>User information</returns>
-
         public async Task<UserInfoDto?> GetUserAsync(Guid Id)
         {
             var user = await repository.FindByIdAsync(Id);

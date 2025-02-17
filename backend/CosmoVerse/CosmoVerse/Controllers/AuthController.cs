@@ -30,53 +30,62 @@ namespace CosmoVerse.Controllers
                 var user = await authService.RegisterAsync(request);
 
                 // Send email for verification
-                await emailService.SentEmailForVerifyAsync(user.Email);
+                if(!await emailService.SentEmailForVerifyAsync(user.Email))
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, "Error sending verification email.");
+                }
 
                 return Created($"/api/users/{user.Id}", null); 
             }
             catch (Exception ex)
             {
-                return Conflict(ex.Message);
+                return BadRequest(ex.Message);
             }   
         }
 
         [HttpPost("login")]
         public async Task<ActionResult<TokenResponseDto>> Login(UserLoginDto request)
         {
-            // Authenticate user
-            var tokenResponse = await authService.LoginAsync(request);
-
-            // Return error if authentication fails
-            if (tokenResponse is null)
+            try
             {
-                return BadRequest("Invalid email or password");
+                // Authenticate user
+                var tokenResponse = await authService.LoginAsync(request);
+
+                // Return error if authentication fails
+                if (tokenResponse is null || !tokenResponse.Success || tokenResponse.Token is null)
+                {
+                    return Unauthorized("Invalid email or password");
+                }
+
+                // Define cookie options
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = true, // Prevents JavaScript access to the cookie
+                    Secure = true,   // Ensures the cookie is sent over HTTPS
+                    SameSite = SameSiteMode.Strict, // Prevent CSRF
+                    Expires = DateTime.UtcNow.AddMinutes(30) // Set cookie expiration
+                };
+
+                // Save AccessToken in cookies
+                Response.Cookies.Append("AccessToken", tokenResponse.Token.AccessToken, cookieOptions);
+
+                // Save RefreshToken in cookies
+                var refreshTokenOptions = new CookieOptions
+                {
+                    HttpOnly = true, // Prevents JavaScript access to the cookie
+                    Secure = true,   // Ensures the cookie is sent over HTTPS
+                    SameSite = SameSiteMode.Strict, // Prevent CSRF
+                    Expires = DateTime.UtcNow.AddDays(30) // Longer expiration for RefreshToken
+                };
+
+                Response.Cookies.Append("RefreshToken", tokenResponse.Token.RefreshToken, refreshTokenOptions);
+
+                return Ok();
             }
-
-            // Define cookie options
-            var cookieOptions = new CookieOptions
+            catch (Exception ex)
             {
-                HttpOnly = true, // Prevents JavaScript access to the cookie
-                Secure = true,   // Ensures the cookie is sent over HTTPS
-                SameSite = SameSiteMode.Strict, // Prevent CSRF
-                Expires = DateTime.UtcNow.AddMinutes(30) // Set cookie expiration
-            };
-
-            // Save AccessToken in cookies
-            Response.Cookies.Append("AccessToken", tokenResponse.AccessToken, cookieOptions);
-
-            // Save RefreshToken in cookies
-            var refreshTokenOptions = new CookieOptions
-            {
-                HttpOnly = true, // Prevents JavaScript access to the cookie
-                Secure = true,   // Ensures the cookie is sent over HTTPS
-                SameSite = SameSiteMode.Strict, // Prevent CSRF
-                Expires = DateTime.UtcNow.AddDays(30) // Longer expiration for RefreshToken
-            };
-
-            Response.Cookies.Append("RefreshToken", tokenResponse.RefreshToken, refreshTokenOptions);
-
-
-            return Ok();
+                return StatusCode(500, new { message = "An internal server error occurred." });
+            }
         }
 
         [Authorize]
@@ -86,7 +95,7 @@ namespace CosmoVerse.Controllers
             var user = await authService.GetUserAsync(Id);
             if (user is null)
             {
-                return BadRequest();
+                return NotFound();
             }
             return Ok(user);
         }
@@ -128,18 +137,25 @@ namespace CosmoVerse.Controllers
         }
 
         [HttpPost("SentEmailForVerify")]
-        public async Task<ActionResult> SentEmailForVerify(string toEmail)
+        public async Task<IActionResult> SentEmailForVerify(string toEmail)
         {
             try
             {
+                // Validate the email
+                if (string.IsNullOrWhiteSpace(toEmail))
+                {
+                    return BadRequest(new { message = "Invalid email address." });
+                }
+
                 // Send email for verification
                 await emailService.SentEmailForVerifyAsync(toEmail);
-                return Ok("Email sent successfully");
+
+                return Ok(new { message = "Email sent successfully." });
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
-
+                _logger.LogError(ex, "Failed to send verification email to {Email}", toEmail);
+                return StatusCode(500, new { message = "An error occurred while sending the email. Please try again later." });
             }
         }
 
