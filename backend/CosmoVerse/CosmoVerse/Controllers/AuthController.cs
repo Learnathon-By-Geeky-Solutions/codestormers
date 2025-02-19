@@ -89,7 +89,7 @@ namespace CosmoVerse.Controllers
         }
 
         [Authorize]
-        [HttpGet("UserInfo")]
+        [HttpGet("User-Info")]
         public async Task<ActionResult<User>> GetUser(Guid Id)
         {
             var user = await authService.GetUserAsync(Id);
@@ -101,7 +101,7 @@ namespace CosmoVerse.Controllers
         }
 
 
-        [HttpPost("refreshToken")]
+        [HttpPost("refresh-token")]
         public async Task<ActionResult<TokenResponseDto>> RefreshToken(RefreshTokenRequestDto request)
         {
             var tokenResponse = await authService.RefreshTokensAsync(request);
@@ -136,7 +136,7 @@ namespace CosmoVerse.Controllers
             return Ok();
         }
 
-        [HttpPost("SentEmailForVerify")]
+        [HttpPost("Sent-email-for-verify")]
         public async Task<IActionResult> SentEmailForVerify(string toEmail)
         {
             try
@@ -159,7 +159,7 @@ namespace CosmoVerse.Controllers
             }
         }
 
-        [HttpPost("verifyEmail")]
+        [HttpPost("verify-email")]
         public async Task<ActionResult> VerifyEmail(string email, string token)
         {
             try
@@ -171,6 +171,57 @@ namespace CosmoVerse.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpPost("forgot-password-code")]
+        public async Task<IActionResult> ForgotPasswordCode(string email)
+        {
+            try
+            {
+                // Validate the email
+                if (string.IsNullOrWhiteSpace(email))
+                {
+                    return BadRequest(new { message = "Invalid email address." });
+                }
+
+                // Send password reset email
+                await emailService.SentPasswordResetEmailAsync(email);
+                return Ok(new { message = "Password reset email sent successfully." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send password reset email to {Email}", email);
+                return StatusCode(500, new { message = "An error occurred while sending the email. Please try again later." });
+            }
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword(PasswordResetDto request)
+        {
+            try
+            {
+                // Validate the email
+                if (string.IsNullOrWhiteSpace(request.Email))
+                {
+                    return BadRequest(new { message = "Invalid email address." });
+                }
+                // Reset password
+                await authService.ResetPasswordAsync(request);
+                return Ok(new { message = "Password reset successfully." });
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(new { message = "Invalid email address." });
+            }
+            catch(InvalidOperationException)
+            {
+                return BadRequest(new { message = "Invalid token." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while processing your request.", ex});
             }
         }
     }

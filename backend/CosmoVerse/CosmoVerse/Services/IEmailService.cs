@@ -8,5 +8,6 @@ namespace CosmoVerse.Services
         Task<bool> SentEmailForVerifyAsync(string toEmail);
         Task<bool> SaveEmailVerificationTokenAsync(string email, string token);
         Task<bool> VerifyEmailAsync(string email, string token);
+        Task<bool> SentPasswordResetEmailAsync(string toEmail);
     }
 }
