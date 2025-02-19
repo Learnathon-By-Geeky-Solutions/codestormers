@@ -10,15 +10,18 @@ namespace CosmoVerse.Services
     {
         private readonly IConfiguration _configuration;
         private readonly IRepository<User> repository;
+        private readonly IRepository<PasswordReset> passwordResetRepository;
         private readonly IRepository<EmailVerification> emailVerificationRepository;
 
 
+
         // Injecting IConfiguration and IRepository<User> and IRepository<EmailVerification> into the constructor
-        public EmailService(IConfiguration Configuration, IRepository<User> repository, IRepository<EmailVerification> emailVerificationRepository)
+        public EmailService(IConfiguration Configuration, IRepository<User> repository, IRepository<EmailVerification> emailVerificationRepository, IRepository<PasswordReset> passwordResetRepository)
         {
             _configuration = Configuration;
             this.repository = repository;
             this.emailVerificationRepository = emailVerificationRepository;
+            this.passwordResetRepository = passwordResetRepository;
         }
 
 
@@ -192,5 +195,60 @@ namespace CosmoVerse.Services
 
             return true;
         }
+
+
+        /// <summary>
+        /// Sends an email to the specified email address with a verification Token.
+        /// for password reset
+        /// </summary>
+        /// <param name="toEmail">The email address to send the email to</param>
+        /// <returns>True if the email was sent successfully, or false if sending the email fails</returns>
+        public async Task<bool> SentPasswordResetEmailAsync(string toEmail)
+        {
+            // Generate a new token
+            var token = new Random().Next(1000000, 10000000);
+
+            // Email subject and message
+            string subject = "Your single-use code";
+
+            string message = $@"
+                <h1>Your single-use code is:</h1>
+                <h2>{token}</h2>
+                <p>This code will expire in 10 minute.</p>";
+
+            // Send the email verification email
+            if (await SendEmailAsync(toEmail, subject, message))
+            {
+                // Check if email exist in password reset table
+                var isEmailExist = await passwordResetRepository.FindAsync(e => e.Email == toEmail);
+
+                // If email does not exist in password reset table then add it
+                if (isEmailExist is null)
+                {
+                    PasswordReset passwordResetData = new PasswordReset
+                    {
+                        Email = toEmail,
+                        Token = token,
+                        ExpiryDate = DateTime.UtcNow.AddMinutes(10)
+                    };
+                    await passwordResetRepository.AddAsync(passwordResetData);
+                }
+                else
+                {
+                    // If email exist in password reset table then update the token and expiry date
+                    isEmailExist.Token = token;
+                    isEmailExist.ExpiryDate = DateTime.UtcNow.AddMinutes(10);
+                    await passwordResetRepository.UpdateAsync(isEmailExist);
+                }
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
     }
 }

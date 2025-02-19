@@ -16,12 +16,17 @@ namespace CosmoVerse.Services
     {
         private readonly IConfiguration Configuration;
         private readonly IRepository<User> repository;
+        private readonly IRepository<PasswordReset> passwordResetRepository;
+        private readonly IEmailService emailService;
+
 
         // Injecting IConfiguration and IRepository<User> into the constructor
-        public AuthService(IConfiguration Configuration, IRepository<User> repository)
+        public AuthService(IConfiguration Configuration, IRepository<User> repository, IEmailService emailService, IRepository<PasswordReset> passwordResetRepository)
         {
             this.Configuration = Configuration;
             this.repository = repository;
+            this.emailService = emailService;
+            this.passwordResetRepository = passwordResetRepository;
         }
 
 
@@ -229,5 +234,46 @@ namespace CosmoVerse.Services
             return userInfo;
         }
 
+
+        /// <summary>
+        /// Reset the user password
+        /// </summary> 
+        /// <param name="request">Password reset request model containing email and token and new password</param>
+        /// <returns>True if the password was reset successfully, or throws an exception if the password reset fails</returns>
+        public async Task<bool> ResetPasswordAsync(PasswordResetDto request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.NewPassword))
+            {
+                throw new ArgumentException("Email and password must not be empty.");
+            }
+
+            var user = await repository.FindAsync(u => u.Email == request.Email);
+
+            if (user is null)
+            {
+                throw new KeyNotFoundException("User not found.");
+            }
+            var tokenDetails = await passwordResetRepository.FindAsync(p => p.Email == request.Email && p.Token == request.Token);
+            if(tokenDetails is null) {
+                throw new KeyNotFoundException("Invalid token.");
+            }
+            if (tokenDetails.ExpiryDate < DateTime.UtcNow)
+            {
+                throw new InvalidOperationException("Token expired.");
+            }
+
+            var hashedPassword = new PasswordHasher<User>().HashPassword(user, request.NewPassword);
+            user.PasswordHash = hashedPassword;
+
+            try
+            {
+                await repository.UpdateAsync(user);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred while resetting the password.", ex);
+            }
+        }
     }
 }

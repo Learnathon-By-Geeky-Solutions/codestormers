@@ -11,5 +11,6 @@ namespace CosmoVerse.Services
         Task<AuthResult> LoginAsync(UserLoginDto request);
         Task<UserInfoDto?> GetUserAsync(Guid Id);
         Task<TokenResponseDto?> RefreshTokensAsync(RefreshTokenRequestDto request);
+        Task<bool> ResetPasswordAsync(PasswordResetDto request);
     }
 }
