@@ -84,7 +84,7 @@ namespace CosmoVerse.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "An internal server error occurred." });
+                return StatusCode(500, new { message = "An unexpected error occurred. Please try again later." });
             }
         }
 
@@ -136,7 +136,7 @@ namespace CosmoVerse.Controllers
             return Ok();
         }
 
-        [HttpPost("Sent-email-for-verify")]
+        [HttpPost("Sent-verification-email")]
         public async Task<IActionResult> SentEmailForVerify(string toEmail)
         {
             try
