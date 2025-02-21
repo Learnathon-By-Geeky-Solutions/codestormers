@@ -206,7 +206,7 @@ namespace CosmoVerse.Services
         public async Task<bool> SentPasswordResetEmailAsync(string toEmail)
         {
             // Generate a new token
-            var token = new Random().Next(1000000, 10000000);
+            var token = new Random().Next(1000, 10000000);
 
             // Email subject and message
             string subject = "Your single-use code";

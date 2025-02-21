@@ -7,7 +7,7 @@ namespace CosmoVerse.Models.Domain
         [Key]
         public Guid Id{ get; set; }
         public string Email { get; set; } = string.Empty;
-        public int Token { get; set; }
+        public string Token { get; set; } = string.Empty;
         public DateTime ExpiryDate { get; set; }
     }
 }

@@ -8,14 +8,14 @@ namespace CosmoVerse.Models.Domain
         public Guid Id { get; set; }
 
         // User information
-        [Required]
+        [Required(ErrorMessage = "Name is required")]
         [StringLength(100)]
         public string Name { get; set; } = string.Empty;
-        [Required]
+        [Required(ErrorMessage = "Email is required")]
         [StringLength(256)]
         public string Email { get; set; } = string.Empty;
         public bool IsEmailVerified { get; set; } = false;
-        [Required]
+        [Required(ErrorMessage = "Password is required")]
         public string PasswordHash { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
         public string? RefreshToken { get; set; } = string.Empty;
