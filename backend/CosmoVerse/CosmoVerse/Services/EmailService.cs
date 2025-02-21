@@ -123,7 +123,7 @@ namespace CosmoVerse.Services
         /// </summary>
         /// <param name="toEmail">The email address to send the email to</param>
         /// <returns>True if the email was sent successfully, or throws an exception if sending the email fails</returns>
-        public async Task<bool> SentEmailForVerifyAsync(string toEmail)
+        public async Task<bool> SendEmailForVerifyAsync(string toEmail)
         {
             // Generate a new token
             var token = Guid.NewGuid().ToString();
@@ -203,10 +203,10 @@ namespace CosmoVerse.Services
         /// </summary>
         /// <param name="toEmail">The email address to send the email to</param>
         /// <returns>True if the email was sent successfully, or false if sending the email fails</returns>
-        public async Task<bool> SentPasswordResetEmailAsync(string toEmail)
+        public async Task<bool> SendPasswordResetEmailAsync(string toEmail)
         {
             // Generate a new token
-            var token = new Random().Next(1000, 10000000);
+            var token = generateToken(6);
 
             // Email subject and message
             string subject = "Your single-use code";
@@ -258,6 +258,19 @@ namespace CosmoVerse.Services
             }
         }
 
+
+        
+        private string generateToken(int length)
+        {
+            const string validChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            Random rand = new Random();
+            char[] token = new char[length];
+            for(int i = 0; i < length; i++)
+            {
+                token[i] = validChars[rand.Next(validChars.Length)];
+            }
+            return new string(token);
+        }
 
     }
 }
