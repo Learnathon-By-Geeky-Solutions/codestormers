@@ -219,14 +219,23 @@ namespace CosmoVerse.Services
             // Send the email verification email
             if (await SendEmailAsync(toEmail, subject, message))
             {
-                // Check if email exist in password reset table
-                var isEmailExist = await passwordResetRepository.FindAsync(e => e.Email == toEmail);
+                // Find user by email
+                var user = await repository.FindAsync(e => e.Email == toEmail);
+
+                // If user not found then return false
+                if (user is null)
+                {
+                    return false;
+                }
+
+                var isEmailExist = await passwordResetRepository.FindAsync(e => e.Id == user.Id);
 
                 // If email does not exist in password reset table then add it
                 if (isEmailExist is null)
                 {
                     PasswordReset passwordResetData = new PasswordReset
                     {
+                        Id = user.Id,
                         Email = toEmail,
                         Token = token,
                         ExpiryDate = DateTime.UtcNow.AddMinutes(10)
