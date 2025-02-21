@@ -19,6 +19,8 @@ namespace CosmoVerse.Models.Domain
         public string PasswordHash { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
         public string? RefreshToken { get; set; } = string.Empty;
+
+        [DataType(DataType.DateTime)]
         public DateTime? RefreshTokenExpiryTime { get; set; }
         [StringLength(500)]
         public string ProfilePictureUrl { get; set; } = string.Empty;
