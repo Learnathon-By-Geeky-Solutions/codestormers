@@ -253,7 +253,8 @@ namespace CosmoVerse.Services
             {
                 throw new KeyNotFoundException("User not found.");
             }
-            var tokenDetails = await passwordResetRepository.FindAsync(p => p.Email == request.Email && p.Token == request.Token);
+            var tokenDetails = await passwordResetRepository.FindAsync(p => p.Id == user.Id && p.Token == request.Token);
+
             if(tokenDetails is null) {
                 throw new KeyNotFoundException("Invalid token.");
             }
@@ -267,7 +268,11 @@ namespace CosmoVerse.Services
 
             try
             {
+                // Update the user password
                 await repository.UpdateAsync(user);
+
+                // Delete the password reset token
+                await passwordResetRepository.DeleteAsync(tokenDetails);
                 return true;
             }
             catch (Exception ex)

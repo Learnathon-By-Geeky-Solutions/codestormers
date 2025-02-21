@@ -30,7 +30,7 @@ namespace CosmoVerse.Controllers
                 var user = await authService.RegisterAsync(request);
 
                 // Send email for verification
-                if(!await emailService.SentEmailForVerifyAsync(user.Email))
+                if(!await emailService.SendEmailForVerifyAsync(user.Email))
                 {
                     return StatusCode(StatusCodes.Status500InternalServerError, "Error sending verification email.");
                 }
@@ -89,7 +89,7 @@ namespace CosmoVerse.Controllers
         }
 
         [Authorize]
-        [HttpGet("User-Info")]
+        [HttpGet("User")]
         public async Task<ActionResult<User>> GetUser(Guid Id)
         {
             var user = await authService.GetUserAsync(Id);
@@ -148,7 +148,7 @@ namespace CosmoVerse.Controllers
                 }
 
                 // Send email for verification
-                await emailService.SentEmailForVerifyAsync(toEmail);
+                await emailService.SendEmailForVerifyAsync(toEmail);
 
                 return Ok(new { message = "Email sent successfully." });
             }
@@ -187,7 +187,7 @@ namespace CosmoVerse.Controllers
                 }
 
                 // Send password reset email
-                await emailService.SentPasswordResetEmailAsync(email);
+                await emailService.SendPasswordResetEmailAsync(email);
                 return Ok(new { message = "Password reset email sent successfully." });
             }
             catch (Exception ex)
