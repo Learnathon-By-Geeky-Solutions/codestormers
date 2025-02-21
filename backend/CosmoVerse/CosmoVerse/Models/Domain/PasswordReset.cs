@@ -8,10 +8,11 @@ namespace CosmoVerse.Models.Domain
         [Required]
         public Guid Id{ get; set; }
         [Required]
-        [MaxLength(100)]
+        [MaxLength(256)]
         public string Email { get; set; } = string.Empty;
         public string Token { get; set; } = string.Empty;
         [Required]
+        [DataType(DataType.DateTime)]
         public DateTime ExpiryDate { get; set; }
     }
 }
