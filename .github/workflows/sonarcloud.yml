@@ -18,7 +18,7 @@ jobs:
       - name: Set up .NET
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '8.0'  
+          dotnet-version: '8.0'
 
       - name: Cache SonarCloud tools
         uses: actions/cache@v2
@@ -30,8 +30,5 @@ jobs:
 
       - name: Run SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@v2
-        with:
-          organization: Learnathon
-          projectKey: Learnathon-By-Geeky-Solutions/codestormers
         env:
           SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
