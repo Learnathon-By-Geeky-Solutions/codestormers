@@ -20,17 +20,17 @@ jobs:
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0' # Adjusted for .NET 8.0
+          dotnet-version: '8.0'  # Adjusted for .NET 8.0
 
       # Step 3: Install dependencies
       - name: Install dependencies
         run: |
-          dotnet restore
+          dotnet restore backend/CosmoVerse/CosmoVerse/CosmoVerse.csproj  # Restore dependencies for your project
 
       # Step 4: Run tests and collect coverage
       - name: Run tests and collect coverage
         run: |
-          dotnet test --collect:"XPlat Code Coverage" --results-directory ./TestResults
+          dotnet test backend/CosmoVerse/CosmoVerse/CosmoVerse.csproj --collect:"XPlat Code Coverage" --results-directory ./TestResults
 
       # Step 5: Convert coverage to Cobertura format
       - name: Convert coverage to Cobertura
@@ -54,7 +54,7 @@ jobs:
             /d:sonar.login="${{ secrets.SONARCLOUD_TOKEN }}" \
             /d:sonar.cs.opencover.reportsPaths="./CoverageResults/coverage.cobertura.xml"
 
-          dotnet build
+          dotnet build backend/CosmoVerse/CosmoVerse/CosmoVerse.csproj  # Build the project
 
           dotnet-sonarscanner end \
             /d:sonar.login="${{ secrets.SONARCLOUD_TOKEN }}"
