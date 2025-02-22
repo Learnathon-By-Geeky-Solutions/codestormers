@@ -1,61 +1,23 @@
-name: SonarCloud Analysis
-
+name: "sonar_cloud_scan_github_actions"
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
-  sonarcloud:
-    runs-on: windows-latest
+  DemoSonarCloudSCan:
+    runs-on: ubuntu-latest
     steps:
-      # Step 1: Checkout code
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      # Step 2: Set up .NET Core
-      - name: Set up .NET Core
-        uses: actions/setup-dotnet@v3
+      - uses: actions/checkout@v3
         with:
-          dotnet-version: '8.0'
-
-      # Step 3: Install dependencies
-      - name: Install dependencies
-        run: |
-          dotnet restore backend/CosmoVerse/CosmoVerse/CosmoVerse.csproj
-
-      # Step 4: Run tests and collect coverage
-      - name: Run tests and collect coverage
-        run: |
-          mkdir -p ./TestResults  # Create TestResults directory if it doesn't exist
-          dotnet add backend/CosmoVerse/CosmoVerse/CosmoVerse.csproj package coverlet.collector
-          dotnet test backend/CosmoVerse/CosmoVerse/CosmoVerse.csproj --collect:"XPlat Code Coverage" --results-directory ./TestResults
-          echo "Listing TestResults directory contents:"
-          dir ./TestResults /s
-
-      # Step 5: Convert coverage to Cobertura format
-      - name: Convert coverage to Cobertura
-        run: |
-          dotnet tool install --global dotnet-reportgenerator-globaltool
-          reportgenerator -reports:"./TestResults/**/coverage.cobertura.xml" -targetdir:"./CoverageResults" -reporttypes:"Cobertura"
-
-      # Step 6: SonarCloud Analysis
-      - name: Run SonarCloud Analysis
+            fetch-depth: 0
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
         env:
-          SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
-        run: |
-          dotnet tool install --global dotnet-sonarscanner
-          dotnet-sonarscanner begin \
-            /k:"codestormers_CosmoVerse" \
-            /o:"<your-organization-name>" \
-            /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.login="${{ secrets.SONARCLOUD_TOKEN }}" \
-            /d:sonar.cs.opencover.reportsPaths="./CoverageResults/Cobertura.xml"
-
-          dotnet build backend/CosmoVerse/CosmoVerse/CosmoVerse.csproj
-
-          dotnet-sonarscanner end \
-            /d:sonar.login="${{ secrets.SONARCLOUD_TOKEN }}"
+            GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+              -Dsonar.organization=rekhugopal
+              -Dsonar.projectKey=CosmoVerse
+              -Dsonar.python.coverage.reportPaths=coverage.xml
