@@ -47,8 +47,8 @@ jobs:
         uses: sonarsource/sonarcloud-github-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
-          SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
+          SONAR_PROJECT_KEY: Learnathon-By-Geeky-Solutions/codestormers
+          SONAR_ORGANIZATION: Learnathon-By-Geeky-Solutions
         with:
           args: >
             -Dsonar.cs.opencover.reportsPaths=./TestResults/**/coverage.cobertura.xml
