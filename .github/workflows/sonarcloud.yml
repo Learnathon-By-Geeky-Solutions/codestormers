@@ -40,7 +40,7 @@ jobs:
 
       # Step 6: Debug Coverage Report Path (Optional, remove this after verifying paths)
       - name: Debug Coverage Report Path
-        run: ls ./TestResults/**/
+        run: ls -R ./TestResults
 
       # Step 7: SonarCloud Scan
       - name: SonarCloud Scan
