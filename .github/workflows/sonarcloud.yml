@@ -1,55 +1,25 @@
-name: SonarCloud
+name: SonarCloud Scan
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    types: [opened, synchronize, reopened]
 
 jobs:
-  build:
-    name: Build and Analyze
+  sonarscan:
+    name: SonarCloud Scan
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout code
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
-      # Step 2: Setup .NET
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '8.0.x'
-
-      # Step 3: Install dependencies
-      - name: Install Dependencies
-        run: dotnet restore backend/CosmoVerse/CosmoVerse/CosmoVerse.csproj
-
-      # Step 4: Build the project
-      - name: Build Project
-        run: dotnet build backend/CosmoVerse/CosmoVerse/CosmoVerse.csproj --no-restore --configuration Release
-
-      # Step 5: Run tests and collect code coverage
-      - name: Run Tests and Collect Coverage
-        run: |
-          dotnet test backend/CosmoVerse/CosmoVerse/CosmoVerse.csproj --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./TestResults
-
-      # Step 6: List Files in Working Directory (Debugging)
-      - name: List Files in Working Directory
-        run: ls -R
-
-      # Step 7: SonarCloud Scan
-      - name: SonarCloud Scan
+      - name: Set up SonarCloud
         uses: sonarsource/sonarcloud-github-action@v2
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_PROJECT_KEY: Learnathon-By-Geeky-Solutions/codestormers
-          SONAR_ORGANIZATION: Learnathon-By-Geeky-Solutions
         with:
-          args: >
-            -Dsonar.cs.opencover.reportsPaths=./TestResults/**/coverage.cobertura.xml
-        
+          organization: Learnathon-By-Geeky-Solutions
+          projectKey: Learnathon-By-Geeky-Solutions/codestormers
+        env:
+          SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
+
+      # Other steps if needed
