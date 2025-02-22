@@ -1,57 +1,59 @@
-name: SonarCloud
+name: SonarCloud Analysis
 
 on:
   push:
     branches:
       - main
   pull_request:
-    types: [opened, synchronize, reopened]
+    branches:
+      - main
 
 jobs:
-  build:
-    name: Build and analyze
-    runs-on: ubuntu-latest
-
+  sonarcloud:
+    runs-on: windows-latest
     steps:
       # Step 1: Checkout code
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      # Step 2: Setup .NET
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v2
+      # Step 2: Set up .NET Core
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '8.0'
 
       # Step 3: Install dependencies
       - name: Install dependencies
-        run: dotnet restore backend/CosmoVerse/CosmoVerse/CosmoVerse.csproj
+        run: |
+          dotnet restore backend/CosmoVerse/CosmoVerse/CosmoVerse.csproj
 
-      # Step 4: Build the project
-      - name: Build the project
-        run: dotnet build backend/CosmoVerse/CosmoVerse/CosmoVerse.csproj --no-restore
-
-      # Step 5: Run tests and collect code coverage
+      # Step 4: Run tests and collect coverage
       - name: Run tests and collect coverage
         run: |
-          dotnet test backend/CosmoVerse/CosmoVerse/CosmoVerse.csproj --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./TestResults
+          dotnet test backend/CosmoVerse/CosmoVerse/CosmoVerse.csproj --collect:"XPlat Code Coverage" --results-directory ./TestResults
+          echo "Listing TestResults directory contents:"
+          dir ./TestResults /s
 
-      # Step 6: Install report generator tool
-      - name: Install report generator tool
-        run: dotnet tool install --global dotnet-reportgenerator-globaltool
-
-      # Step 7: Generate the Cobertura coverage report
-      - name: Generate Cobertura report
+      # Step 5: Convert coverage to Cobertura format
+      - name: Convert coverage to Cobertura
         run: |
-          reportgenerator -reports:./TestResults/*/coverage.cobertura.xml -targetdir:./CoverageResults -reporttypes:Cobertura
+          dotnet tool install --global dotnet-reportgenerator-globaltool
+          reportgenerator -reports:"./TestResults/**/coverage.cobertura.xml" -targetdir:"./CoverageResults" -reporttypes:"Cobertura"
 
-      # Step 8: SonarCloud Scan
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@v1
-        with:
-          projectKey: ${{ secrets.SONAR_PROJECT_KEY }}
-          organization: ${{ secrets.SONAR_ORGANIZATION }}
-          token: ${{ secrets.SONAR_TOKEN }}
-          # Optional: Specify paths for the coverage report
-          extraProperties: |
-            sonar.cs.opencover.reportsPaths=./CoverageResults/coverage.cobertura.xml
+      # Step 6: SonarCloud Analysis
+      - name: Run SonarCloud Analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+          dotnet-sonarscanner begin \
+            /k:"codestormers_CosmoVerse" \
+            /o:"<your-organization-name>" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.login="${{ secrets.SONARCLOUD_TOKEN }}" \
+            /d:sonar.cs.opencover.reportsPaths="./CoverageResults/Cobertura.xml"
+
+          dotnet build backend/CosmoVerse/CosmoVerse/CosmoVerse.csproj
+
+          dotnet-sonarscanner end \
+            /d:sonar.login="${{ secrets.SONARCLOUD_TOKEN }}"
