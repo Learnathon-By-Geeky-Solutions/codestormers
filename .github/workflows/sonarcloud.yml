@@ -36,10 +36,7 @@ jobs:
       - name: Convert coverage to Cobertura
         run: |
           dotnet tool install --global dotnet-reportgenerator-globaltool
-          reportgenerator \
-            -reports:./TestResults/*/coverage.cobertura.xml \
-            -targetdir:./CoverageResults \
-            -reporttypes:Cobertura
+          reportgenerator -reports:"./TestResults/*/coverage.cobertura.xml" -targetdir:"./CoverageResults" -reporttypes:"Cobertura"
 
       # Step 6: SonarCloud Analysis
       - name: Run SonarCloud Analysis
