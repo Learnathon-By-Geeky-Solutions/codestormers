@@ -1,23 +1,55 @@
-name: "sonar_cloud_scan_github_actions"
+name: SonarCloud
+
 on:
   push:
     branches:
       - main
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
-  DemoSonarCloudSCan:
+  build:
+    name: Build and Analyze
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
+      # Step 1: Checkout code
+      - name: Checkout Code
+        uses: actions/checkout@v3
         with:
-            fetch-depth: 0
+          fetch-depth: 0
+
+      # Step 2: Setup .NET
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      # Step 3: Install dependencies
+      - name: Install Dependencies
+        run: dotnet restore backend/CosmoVerse/CosmoVerse/CosmoVerse.csproj
+
+      # Step 4: Build the project
+      - name: Build Project
+        run: dotnet build backend/CosmoVerse/CosmoVerse/CosmoVerse.csproj --no-restore --configuration Release
+
+      # Step 5: Run tests and collect code coverage
+      - name: Run Tests and Collect Coverage
+        run: |
+          dotnet test backend/CosmoVerse/CosmoVerse/CosmoVerse.csproj --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./TestResults
+
+      # Step 6: Debug Coverage Report Path (Optional, remove this after verifying paths)
+      - name: Debug Coverage Report Path
+        run: ls ./TestResults/**/
+
+      # Step 7: SonarCloud Scan
       - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@master
+        uses: sonarsource/sonarcloud-github-action@v1
         env:
-            GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
-            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          args: >
-              -Dsonar.organization=rekhugopal
-              -Dsonar.projectKey=CosmoVerse
-              -Dsonar.python.coverage.reportPaths=coverage.xml
+          projectKey: ${{ secrets.SONAR_PROJECT_KEY }}
+          organization: ${{ secrets.SONAR_ORGANIZATION }}
+          extraProperties: |
+            sonar.cs.opencover.reportsPaths=./TestResults/**/coverage.cobertura.xml
