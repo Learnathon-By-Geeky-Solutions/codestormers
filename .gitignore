@@ -12,6 +12,8 @@ obj/
 *.vs/
 .vscode/
 *.jwt
+TestResults/
+
 
 # Ignore migrations folder
 Migrations/
