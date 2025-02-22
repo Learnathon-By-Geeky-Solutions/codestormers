@@ -38,18 +38,16 @@ jobs:
         run: |
           dotnet test backend/CosmoVerse/CosmoVerse/CosmoVerse.csproj --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./TestResults
 
-      # Step 6: Debug Coverage Report Path (Optional, remove this after verifying paths)
-      - name: Debug Coverage Report Path
-        run: ls -R 
+      # Step 6: List Files in Working Directory (Debugging)
+      - name: List Files in Working Directory
+        run: ls -R
 
       # Step 7: SonarCloud Scan
       - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        uses: sonarsource/sonarcloud-github-action@v2
         with:
           projectKey: ${{ secrets.SONAR_PROJECT_KEY }}
           organization: ${{ secrets.SONAR_ORGANIZATION }}
-          extraProperties: |
-            sonar.cs.opencover.reportsPaths=./TestResults/**/coverage.cobertura.xml
+          token: ${{ secrets.SONAR_TOKEN }}
+          args: >
+            -Dsonar.cs.opencover.reportsPaths=./TestResults/**/coverage.cobertura.xml
