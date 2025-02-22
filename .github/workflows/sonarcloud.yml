@@ -3,23 +3,35 @@ name: SonarCloud Scan
 on:
   push:
     branches:
-      - main
+      - main  # or your default branch
+  pull_request:
+    branches:
+      - main  # or your default branch
 
 jobs:
-  sonarscan:
-    name: SonarCloud Scan
+  sonarcloud:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
-      - name: Set up SonarCloud
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '8.0'  
+
+      - name: Cache SonarCloud tools
+        uses: actions/cache@v2
+        with:
+          path: ~/.sonar
+          key: ${{ runner.os }}-sonarcloud-${{ hashFiles('**/*.cs') }}
+          restore-keys: |
+            ${{ runner.os }}-sonarcloud-
+
+      - name: Run SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@v2
         with:
-          organization: Learnathon-By-Geeky-Solutions
+          organization: Learnathon
           projectKey: Learnathon-By-Geeky-Solutions/codestormers
         env:
           SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
-
-      # Other steps if needed
