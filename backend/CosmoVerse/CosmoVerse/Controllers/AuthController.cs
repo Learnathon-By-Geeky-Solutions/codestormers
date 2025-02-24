@@ -224,5 +224,24 @@ namespace CosmoVerse.Controllers
                 return StatusCode(500, new { message = "An error occurred while processing your request.", ex});
             }
         }
+
+
+        [HttpPost("Logout")]
+        public async Task<IActionResult> Logout()
+        {
+            // Define cookie options
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true, // Prevents JavaScript access to the cookie
+                Secure = true,   // Ensures the cookie is sent over HTTPS
+                SameSite = SameSiteMode.Strict, // Prevent CSRF
+                Expires = DateTime.UtcNow.AddDays(-1) // Set cookie expiration
+            };
+            // Remove AccessToken from cookies
+            Response.Cookies.Delete("AccessToken", cookieOptions);
+            // Remove RefreshToken from cookies
+            Response.Cookies.Delete("RefreshToken", cookieOptions);
+            return Ok();
+        }
     }
 }
