@@ -97,7 +97,7 @@ namespace CosmoVerse.Services
         public async Task<TokenResponseDto?> RefreshTokensAsync(RefreshTokenRequestDto request)
         {
             // Validate the refresh token
-            var user = await ValidateRefreshTokenAsync(request.Id, request.RefreshToken);
+            var user = await ValidateRefreshTokenAsync(request.RefreshToken);
 
             // Throw an exception if the refresh token is invalid
             if (user is null)
@@ -116,10 +116,13 @@ namespace CosmoVerse.Services
         /// <param name="userId">User Id</param>
         /// <param name="refreshToken">RefreshToken of the user</param>
         /// <returns>User if the refresh token valid otherwise null</returns>
-        private async Task<User?> ValidateRefreshTokenAsync(Guid userId, string refreshToken)
+        private async Task<User?> ValidateRefreshTokenAsync(string refreshToken)
         {
+
+            var user = await repository.FindAsync(u=> u.RefreshToken == refreshToken);
+
             // Find the user by Id
-            var user = await repository.FindByIdAsync(userId);
+            //var user = await repository.FindByIdAsync(userId);
 
             // Check if the user exists and the refresh token is valid
             if (user is null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
