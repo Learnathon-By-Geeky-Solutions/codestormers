@@ -8,8 +8,8 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 const GalaxyLogin = () => {
   const [user, setUser] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // Handle input changes
   const userDataChange = (e) => {
     const { name, value } = e.target;
     setUser((prev) => ({
@@ -18,21 +18,21 @@ const GalaxyLogin = () => {
     }));
   };
 
-  // Handle form submission
   const handleLogin = async (event) => {
     event.preventDefault();
+    setLoading(true);
 
-    // Validate email (only Gmail, Yahoo, Hotmail, Outlook)
     const emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com|hotmail\.com|outlook\.com)$/;
     if (!emailPattern.test(user.email)) {
       alert("Please enter a valid Gmail, Yahoo, Hotmail, or Outlook email address");
+      setLoading(false);
       return;
     }
 
-    // Validate password (at least 6 characters, 1 special character, 1 number)
     const passwordPattern = /^(?=.*[!@#$%^&*])(?=.*\d).{6,}$/;
     if (!passwordPattern.test(user.password)) {
       alert("Password must be at least 6 characters long and include at least one special character and one number");
+      setLoading(false);
       return;
     }
 
@@ -43,18 +43,18 @@ const GalaxyLogin = () => {
     } catch (error) {
       console.error("Login failed:", error.response?.data || error.message);
       alert(error.response?.data?.message || "Login failed. Please check your credentials.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="relative w-full h-screen bg-black overflow-hidden">
-      {/* Three.js Canvas */}
       <Canvas>
         <Stars radius={100} depth={50} count={5000} factor={4} fade speed={1} />
         <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={0.5} />
       </Canvas>
 
-      {/* Login Form */}
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
@@ -63,7 +63,6 @@ const GalaxyLogin = () => {
       >
         <h2 className="text-2xl font-bold text-center mb-6 text-blue-400">Login to Galaxy</h2>
         <form onSubmit={handleLogin}>
-          {/* Email Input */}
           <input
             type="text"
             name="email"
@@ -72,8 +71,7 @@ const GalaxyLogin = () => {
             onChange={userDataChange}
             className="w-full p-3 mb-4 rounded-md bg-gray-800 text-white border border-gray-600 focus:ring-2 focus:ring-blue-500"
           />
-
-          {/* Password Input with Show/Hide */}
+          
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
@@ -91,16 +89,15 @@ const GalaxyLogin = () => {
             </span>
           </div>
 
-          {/* Login Button */}
           <button
             type="submit"
-            className="w-full p-3 mt-4 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition"
+            disabled={loading}
+            className={`w-full p-3 mt-4 rounded-md transition text-white ${loading ? "bg-gray-600 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"}`}
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
-        {/* Signup Link */}
         <p className="mt-4 text-center text-gray-400">
           Don't have an account? <a href="/signup" className="text-blue-400">Sign Up</a>
         </p>
