@@ -1,3 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+@keyframes spin-slow {
+  
+  }
+  .animate-spin-slow {
+    animation: spin-slow 10s linear infinite;
+  }
+  
