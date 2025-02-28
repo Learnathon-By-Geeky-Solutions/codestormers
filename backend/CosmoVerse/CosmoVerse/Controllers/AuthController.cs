@@ -4,6 +4,7 @@ using CosmoVerse.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace CosmoVerse.Controllers
 {
@@ -57,28 +58,7 @@ namespace CosmoVerse.Controllers
                     return Unauthorized("Invalid email or password");
                 }
 
-                // Define cookie options
-                var cookieOptions = new CookieOptions
-                {
-                    HttpOnly = true, // Prevents JavaScript access to the cookie
-                    Secure = true,   // Ensures the cookie is sent over HTTPS
-                    SameSite = SameSiteMode.Strict, // Prevent CSRF
-                    Expires = DateTime.UtcNow.AddMinutes(30) // Set cookie expiration
-                };
-
-                // Save AccessToken in cookies
-                Response.Cookies.Append("AccessToken", tokenResponse.Token.AccessToken, cookieOptions);
-
-                // Save RefreshToken in cookies
-                var refreshTokenOptions = new CookieOptions
-                {
-                    HttpOnly = true, // Prevents JavaScript access to the cookie
-                    Secure = true,   // Ensures the cookie is sent over HTTPS
-                    SameSite = SameSiteMode.Strict, // Prevent CSRF
-                    Expires = DateTime.UtcNow.AddDays(30) // Longer expiration for RefreshToken
-                };
-
-                Response.Cookies.Append("RefreshToken", tokenResponse.Token.RefreshToken, refreshTokenOptions);
+                setTokenCookies(tokenResponse.Token.AccessToken, tokenResponse.Token.RefreshToken);
 
                 return Ok();
             }
@@ -90,8 +70,15 @@ namespace CosmoVerse.Controllers
 
         [Authorize]
         [HttpGet("User")]
-        public async Task<ActionResult<User>> GetUser(Guid Id)
+        public async Task<ActionResult<User>> GetUser()
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID claim not found.");
+            }
+
+            var Id = Guid.Parse(userIdClaim);
             var user = await authService.GetUserAsync(Id);
             if (user is null)
             {
@@ -104,34 +91,12 @@ namespace CosmoVerse.Controllers
         [HttpPost("refresh-token")]
         public async Task<ActionResult<TokenResponseDto>> RefreshToken(RefreshTokenRequestDto request)
         {
+            request.RefreshToken = Uri.UnescapeDataString(request.RefreshToken);
             var tokenResponse = await authService.RefreshTokensAsync(request);
             if (tokenResponse is null || tokenResponse.AccessToken is null || tokenResponse.RefreshToken is null)
                 return BadRequest("Invalid refresh token.");
 
-            // Define cookie options
-            var cookieOptions = new CookieOptions
-            {
-                HttpOnly = true, // Prevents JavaScript access to the cookie
-                Secure = true,   // Ensures the cookie is sent over HTTPS
-                SameSite = SameSiteMode.Strict, // Prevent CSRF
-                Expires = DateTime.UtcNow.AddMinutes(30) // Set cookie expiration
-            };
-
-            // Save AccessToken in cookies
-            Response.Cookies.Append("AccessToken", tokenResponse.AccessToken, cookieOptions);
-
-            // Save RefreshToken in cookies
-            var refreshTokenOptions = new CookieOptions
-            {
-                HttpOnly = true, // Prevents JavaScript access to the cookie
-                Secure = true,   // Ensures the cookie is sent over HTTPS
-                SameSite = SameSiteMode.Strict, // Prevent CSRF
-                Expires = DateTime.UtcNow.AddDays(30) // Longer expiration for RefreshToken
-            };
-
-            // Save RefreshToken in cookies
-            Response.Cookies.Append("RefreshToken", tokenResponse.RefreshToken, refreshTokenOptions);
-
+            setTokenCookies(tokenResponse.AccessToken, tokenResponse.RefreshToken);
 
             return Ok();
         }
@@ -223,6 +188,55 @@ namespace CosmoVerse.Controllers
             {
                 return StatusCode(500, new { message = "An error occurred while processing your request.", ex});
             }
+        }
+
+
+        [HttpPost("Logout")]
+        public async Task<IActionResult> Logout()
+        {
+
+            // Define cookie options
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true, // Prevents JavaScript access to the cookie
+                Secure = true,   // Ensures the cookie is sent over HTTPS
+                SameSite = SameSiteMode.Strict, // Prevent CSRF
+                Expires = DateTime.UtcNow.AddDays(-1) // Set cookie expiration
+            };
+            // Remove AccessToken from cookies
+            Response.Cookies.Delete("AccessToken", cookieOptions);
+            // Remove RefreshToken from cookies
+            Response.Cookies.Delete("RefreshToken", cookieOptions);
+            return Ok();
+        }
+
+
+
+        // Helper method to set token cookies
+        private void setTokenCookies(string AccessToken, string RefreshToken)
+        {
+            // Define cookie options
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true, // Prevents JavaScript access to the cookie
+                Secure = true,   // Ensures the cookie is sent over HTTPS
+                SameSite = SameSiteMode.Strict, // Prevent CSRF
+                Expires = DateTime.UtcNow.AddMinutes(30) // Set cookie expiration
+            };
+
+            // Save AccessToken in cookies
+            Response.Cookies.Append("AccessToken", AccessToken, cookieOptions);
+
+            // Save RefreshToken in cookies
+            var refreshTokenOptions = new CookieOptions
+            {
+                HttpOnly = true, // Prevents JavaScript access to the cookie
+                Secure = true,   // Ensures the cookie is sent over HTTPS
+                SameSite = SameSiteMode.Strict, // Prevent CSRF
+                Expires = DateTime.UtcNow.AddDays(30) // Longer expiration for RefreshToken
+            };
+
+            Response.Cookies.Append("RefreshToken", RefreshToken, refreshTokenOptions);
         }
     }
 }
