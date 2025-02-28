@@ -2,9 +2,9 @@ import React, { useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Stars } from "@react-three/drei";
 import { motion } from "framer-motion";
-import axios from "axios";
 import axiosInstance from "../utils/api/axiosInstance";
 import { useNavigate } from "react-router-dom";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 const TwinklingStars = () => {
   const groupRef = useRef();
@@ -57,7 +57,10 @@ const GalaxyBackground = () => {
 
 const Signup = () => {
   const [user, setUser] = useState({});
-  const navigate=useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const navigate = useNavigate();
 
   const onUserDataChange = (e) => {
     const { name, value } = e.target;
@@ -67,7 +70,7 @@ const Signup = () => {
     }));
   };
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (
       !user.name ||
@@ -89,7 +92,7 @@ const Signup = () => {
       return;
     }
 
-    // Validate password (at least 1 special character, 1 number, min length 6)
+    // Validate password (at least 1 special character, 1 number, min length 8)
     const passwordPattern = /^(?=.*[!@#$%^&*])(?=.*\d).{8,}$/;
     if (!passwordPattern.test(user.password)) {
       alert(
@@ -103,13 +106,16 @@ const Signup = () => {
       return;
     }
 
+    setLoading(true);
     try {
-      const res =await axiosInstance.post("/api/Auth/register", user);
-      if(res.status===201){
-        navigate("/login")
+      const res = await axiosInstance.post("/api/Auth/register", user);
+      if (res.status === 201) {
+        navigate("/login");
       }
     } catch (error) {
-      console.log("something went wrong", error);
+      console.log("Something went wrong", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -138,25 +144,52 @@ const Signup = () => {
             className="w-full px-4 py-2 bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             onChange={onUserDataChange}
           />
-          <input
-            name="password"
-            type="password"
-            placeholder="Password"
-            className="w-full px-4 py-2 bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            onChange={onUserDataChange}
-          />
-          <input
-            name="confirmpassword"
-            type="password"
-            placeholder="Confirm Password"
-            className="w-full px-4 py-2 bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            onChange={onUserDataChange}
-          />
+          <div className="relative">
+            <input
+              name="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              className="w-full px-4 py-2 bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+              onChange={onUserDataChange}
+            />
+            <button
+              type="button"
+              className="absolute right-3 top-2 text-gray-400 hover:text-white"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeOffIcon size={20} /> : <EyeIcon size={20} />}
+            </button>
+          </div>
+          <div className="relative">
+            <input
+              name="confirmpassword"
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder="Confirm Password"
+              className="w-full px-4 py-2 bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+              onChange={onUserDataChange}
+            />
+            <button
+              type="button"
+              className="absolute right-3 top-2 text-gray-400 hover:text-white"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              {showConfirmPassword ? (
+                <EyeOffIcon size={20} />
+              ) : (
+                <EyeIcon size={20} />
+              )}
+            </button>
+          </div>
           <button
             onClick={handleSubmit}
-            className="w-full py-2 bg-blue-600 hover:bg-blue-700 rounded-md text-white font-semibold transition"
+            className="w-full py-2 bg-blue-600 hover:bg-blue-700 rounded-md text-white font-semibold transition flex justify-center items-center"
+            disabled={loading}
           >
-            Sign Up
+            {loading ? (
+              <span className="animate-spin h-5 w-5 border-2 rounded-full border-white"></span>
+            ) : (
+              "Sign Up"
+            )}
           </button>
         </form>
       </motion.div>
