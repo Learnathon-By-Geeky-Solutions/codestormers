@@ -5,8 +5,10 @@ namespace CosmoVerse.Models.Domain
     public class EmailVerification
     {
         [Key]
+        public int Id { get; set; }
+
         [Required]
-        public Guid Id { get; set; }
+        public Guid UserId { get; set; }    
 
         [Required]
         [MaxLength(256)]
