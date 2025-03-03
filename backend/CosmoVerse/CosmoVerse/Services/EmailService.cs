@@ -82,10 +82,10 @@ namespace CosmoVerse.Services
         /// <param name="email">The email address to save the token for</param>
         /// <param name="token">The token to save</param>
         /// <returns>True if the token was saved successfully</returns>
-        public async Task<bool> SaveEmailVerificationTokenAsync(string email, string token)
+        public async Task<bool> SaveEmailVerificationTokenAsync(User user, string token)
         {
             // Find the user by email
-            var user = await repository.FindAsync(u => u.Email == email);
+            //var user = await repository.FindAsync(u => u.Email == email);
 
             // Throw an exception if the user does not exist
             if (user == null)
@@ -106,7 +106,7 @@ namespace CosmoVerse.Services
             var emailVerification = new EmailVerification
             {
                 UserId = user.Id,
-                Email = email,
+                Email = user.Email,
                 Token = token,
                 ExpiryTime = DateTime.UtcNow.AddHours(24)
             };
@@ -123,7 +123,7 @@ namespace CosmoVerse.Services
         /// </summary>
         /// <param name="toEmail">The email address to send the email to</param>
         /// <returns>True if the email was sent successfully, or throws an exception if sending the email fails</returns>
-        public async Task<bool> SendEmailForVerifyAsync(string toEmail)
+        public async Task<bool> SendEmailForVerifyAsync(User user)
         {
             // Generate a new token
             var token = Guid.NewGuid().ToString();
@@ -133,19 +133,19 @@ namespace CosmoVerse.Services
             <body>
                 <p>Hi there,</p>
                 <p>Thank you for registering with us. Please click the button below to verify your email address.</p>
-                <a href='http://localhost:3000/verification-page?email={toEmail}&token={token}' style='background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; font-size: 16px; border-radius: 5px;'>Verify Email</a>
+                <a href='http://localhost:3000/verification-page?email={user.Email}&token={token}' style='background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; font-size: 16px; border-radius: 5px;'>Verify Email</a>
                 <p>If you didn't sign up for this account, please ignore this email.</p>
             </body>
             </html>";
 
             // Send email
-            var response = await SendEmailAsync(toEmail, subject, message);
+            var response = await SendEmailAsync(user.Email, subject, message);
 
             // Save token in database if email was sent successfully
             if (response)
             {
                 // Save token in database
-                await SaveEmailVerificationTokenAsync(toEmail, token);
+                await SaveEmailVerificationTokenAsync(user, token);
                 return true;
             }
 

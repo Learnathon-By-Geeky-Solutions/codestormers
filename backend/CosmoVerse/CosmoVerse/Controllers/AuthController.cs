@@ -1,5 +1,6 @@
 ﻿using CosmoVerse.Models.Domain;
 using CosmoVerse.Models.Dto;
+using CosmoVerse.Repositories;
 using CosmoVerse.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -15,11 +16,13 @@ namespace CosmoVerse.Controllers
         private readonly ILogger<AuthController> _logger;
         private readonly IAuthService authService;
         private readonly IEmailService emailService;
-        public AuthController(ILogger<AuthController> logger, IAuthService authService, IEmailService emailService)
+        private readonly IRepository<User> userRepository;
+        public AuthController(ILogger<AuthController> logger, IAuthService authService, IEmailService emailService, IRepository<User> userRepository)
         {
             _logger = logger;
             this.authService = authService;
             this.emailService = emailService;
+            this.userRepository = userRepository;
         }
 
         [HttpPost("register")]
@@ -30,8 +33,13 @@ namespace CosmoVerse.Controllers
                 // Register user
                 var user = await authService.RegisterAsync(request);
 
+                if(user is null)
+                {
+                    return StatusCode(500, new { message = "An unexpected error occurred. Please try again later." }); 
+                }
+
                 // Send email for verification
-                if(!await emailService.SendEmailForVerifyAsync(user.Email))
+                if(!await emailService.SendEmailForVerifyAsync(user))
                 {
                     return StatusCode(StatusCodes.Status500InternalServerError, "Error sending verification email.");
                 }
@@ -102,24 +110,30 @@ namespace CosmoVerse.Controllers
         }
 
         [HttpPost("Sent-verification-email")]
-        public async Task<IActionResult> SentEmailForVerify(string toEmail)
+        public async Task<IActionResult> SentEmailForVerify()
         {
             try
             {
                 // Validate the email
-                if (string.IsNullOrWhiteSpace(toEmail))
+                //if (string.IsNullOrWhiteSpace(toEmail))
+                //{
+                //    return BadRequest(new { message = "Invalid email address." });
+                //}
+
+                var user = getUserFromCookie();
+
+                if (user is null)
                 {
-                    return BadRequest(new { message = "Invalid email address." });
+                    return Unauthorized("User not found.");
                 }
 
                 // Send email for verification
-                await emailService.SendEmailForVerifyAsync(toEmail);
+                await emailService.SendEmailForVerifyAsync(user);
 
                 return Ok(new { message = "Email sent successfully." });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to send verification email to {Email}", toEmail);
                 return StatusCode(500, new { message = "An error occurred while sending the email. Please try again later." });
             }
         }
@@ -192,7 +206,7 @@ namespace CosmoVerse.Controllers
 
 
         [HttpPost("Logout")]
-        public async Task<IActionResult> Logout()
+        public IActionResult Logout()
         {
 
             // Define cookie options
@@ -237,6 +251,20 @@ namespace CosmoVerse.Controllers
             };
 
             Response.Cookies.Append("RefreshToken", RefreshToken, refreshTokenOptions);
+        }
+
+
+        // Helper method to get user from cookie
+        private User getUserFromCookie()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null)
+            {
+                return null;
+            }
+            var Id = Guid.Parse(userIdClaim);
+            var user = userRepository.FindByIdAsync(Id).Result;
+            return user;
         }
     }
 }
