@@ -30,14 +30,14 @@ namespace CosmoVerse.Models.Domain
         public DateTime UpdatedAt { get; set; }
 
         // Email verification information
-        public int? EmailVerificationId { get; set; }
+        public Guid? EmailVerificationId { get; set; }
         // Navigation property
-        public EmailVerification? EmailVerification { get; set; }
+        public virtual EmailVerification? EmailVerification { get; set; }
 
 
         // Password reset information
-        public int? PasswordResetId { get; set; }
+        public Guid? PasswordResetId { get; set; }
         // Navigation property
-        public PasswordReset? PasswordReset { get; set; }
+        public virtual PasswordReset? PasswordReset { get; set; }
     }
 }

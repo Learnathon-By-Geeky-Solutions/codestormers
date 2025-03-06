@@ -105,6 +105,7 @@ namespace CosmoVerse.Services
             // Create a new email verification record
             var emailVerification = new EmailVerification
             {
+                Id = Guid.NewGuid(),
                 UserId = user.Id,
                 Email = user.Email,
                 Token = token,
@@ -113,6 +114,10 @@ namespace CosmoVerse.Services
 
             // Save the email verification record in the database
             await emailVerificationRepository.AddAsync(emailVerification);
+
+            // Update the user record with the email verification ID
+            user.EmailVerificationId = emailVerification.Id;
+            await repository.UpdateAsync(user);
 
             return true;
         }
@@ -220,7 +225,7 @@ namespace CosmoVerse.Services
             if (await SendEmailAsync(toEmail, subject, message))
             {
                 // Find user by email
-                var user = await repository.FindAsync(e => e.Email == toEmail);
+                var user = await repository.FindAsync(e => e.Email == toEmail, u => u.PasswordReset);
 
                 // If user not found then return false
                 if (user is null)
@@ -236,12 +241,17 @@ namespace CosmoVerse.Services
                 {
                     PasswordReset passwordResetData = new PasswordReset
                     {
+                        Id = Guid.NewGuid(),
                         UserId = user.Id,
                         Email = toEmail,
                         Token = token,
                         ExpiryDate = DateTime.UtcNow.AddMinutes(10)
                     };
                     await passwordResetRepository.AddAsync(passwordResetData);
+
+                    // Update the user record with the password reset ID
+                    user.PasswordResetId = passwordResetData.Id;
+                    await repository.UpdateAsync(user);
                 }
                 else
                 {
