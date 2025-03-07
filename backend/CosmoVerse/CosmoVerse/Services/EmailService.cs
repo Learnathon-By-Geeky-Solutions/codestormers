@@ -70,7 +70,7 @@ namespace CosmoVerse.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Failed to send email");
+                throw new Exception("Failed to send email", ex);
             }
         }
 
@@ -82,10 +82,10 @@ namespace CosmoVerse.Services
         /// <param name="email">The email address to save the token for</param>
         /// <param name="token">The token to save</param>
         /// <returns>True if the token was saved successfully</returns>
-        public async Task<bool> SaveEmailVerificationTokenAsync(string email, string token)
+        public async Task<bool> SaveEmailVerificationTokenAsync(User user, string token)
         {
             // Find the user by email
-            var user = await repository.FindAsync(u => u.Email == email);
+            //var user = await repository.FindAsync(u => u.Email == email);
 
             // Throw an exception if the user does not exist
             if (user == null)
@@ -94,7 +94,7 @@ namespace CosmoVerse.Services
             }
 
             // Find the existing email verification record
-            var existingEmailVerification = await emailVerificationRepository.FindAsync(e => e.Id == user.Id);
+            var existingEmailVerification = user.EmailVerification;
 
             // Delete the existing email verification record if it exists
             if (existingEmailVerification != null)
@@ -105,14 +105,19 @@ namespace CosmoVerse.Services
             // Create a new email verification record
             var emailVerification = new EmailVerification
             {
-                Id = user.Id,
-                Email = email,
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                Email = user.Email,
                 Token = token,
                 ExpiryTime = DateTime.UtcNow.AddHours(24)
             };
 
             // Save the email verification record in the database
             await emailVerificationRepository.AddAsync(emailVerification);
+
+            // Update the user record with the email verification ID
+            user.EmailVerificationId = emailVerification.Id;
+            await repository.UpdateAsync(user);
 
             return true;
         }
@@ -123,7 +128,7 @@ namespace CosmoVerse.Services
         /// </summary>
         /// <param name="toEmail">The email address to send the email to</param>
         /// <returns>True if the email was sent successfully, or throws an exception if sending the email fails</returns>
-        public async Task<bool> SendEmailForVerifyAsync(string toEmail)
+        public async Task<bool> SendEmailForVerifyAsync(User user)
         {
             // Generate a new token
             var token = Guid.NewGuid().ToString();
@@ -133,19 +138,19 @@ namespace CosmoVerse.Services
             <body>
                 <p>Hi there,</p>
                 <p>Thank you for registering with us. Please click the button below to verify your email address.</p>
-                <a href='http://localhost:3000/verification-page?email={toEmail}&token={token}' style='background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; font-size: 16px; border-radius: 5px;'>Verify Email</a>
+                <a href='http://localhost:3000/verification-page?email={user.Email}&token={token}' style='background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; font-size: 16px; border-radius: 5px;'>Verify Email</a>
                 <p>If you didn't sign up for this account, please ignore this email.</p>
             </body>
             </html>";
 
             // Send email
-            var response = await SendEmailAsync(toEmail, subject, message);
+            var response = await SendEmailAsync(user.Email, subject, message);
 
             // Save token in database if email was sent successfully
             if (response)
             {
                 // Save token in database
-                await SaveEmailVerificationTokenAsync(toEmail, token);
+                await SaveEmailVerificationTokenAsync(user, token);
                 return true;
             }
 
@@ -176,7 +181,7 @@ namespace CosmoVerse.Services
             }
 
             // Find the user by email
-            var user = await repository.FindByIdAsync(emailVerification.Id);
+            var user = await repository.FindByIdAsync(emailVerification.UserId);
 
             // Throw an exception if the user does not exist
             if (user == null)
@@ -220,7 +225,7 @@ namespace CosmoVerse.Services
             if (await SendEmailAsync(toEmail, subject, message))
             {
                 // Find user by email
-                var user = await repository.FindAsync(e => e.Email == toEmail);
+                var user = await repository.FindAsync(e => e.Email == toEmail, u => u.PasswordReset);
 
                 // If user not found then return false
                 if (user is null)
@@ -228,19 +233,25 @@ namespace CosmoVerse.Services
                     return false;
                 }
 
-                var isEmailExist = await passwordResetRepository.FindAsync(e => e.Id == user.Id);
+                //var isEmailExist = await passwordResetRepository.FindAsync(e => e.UserId == user.Id);
+                var isEmailExist = user.PasswordReset;
 
                 // If email does not exist in password reset table then add it
                 if (isEmailExist is null)
                 {
                     PasswordReset passwordResetData = new PasswordReset
                     {
-                        Id = user.Id,
+                        Id = Guid.NewGuid(),
+                        UserId = user.Id,
                         Email = toEmail,
                         Token = token,
                         ExpiryDate = DateTime.UtcNow.AddMinutes(10)
                     };
                     await passwordResetRepository.AddAsync(passwordResetData);
+
+                    // Update the user record with the password reset ID
+                    user.PasswordResetId = passwordResetData.Id;
+                    await repository.UpdateAsync(user);
                 }
                 else
                 {
