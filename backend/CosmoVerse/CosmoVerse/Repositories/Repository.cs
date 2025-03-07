@@ -37,6 +37,46 @@ namespace CosmoVerse.Repositories
             }
         }
 
+        /// <summary>
+        /// Find entity by id
+        /// </summary>
+        /// <param name="id">Id of the model </param>
+        /// <returns>model data</returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="Exception"></exception>
+        public async Task<T?> FindByIdAsync(int id)
+        {
+            if (id == 0)
+                throw new ArgumentException("Id is not valid.", nameof(id));
+
+
+            try
+            {
+                return await _dbSet.FindAsync(id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error finding entity of type {typeof(T).Name} with id {id}.", ex);
+            }
+        }
+
+
+
+        public async Task<bool> ExistsAsync(Expression<Func<T, bool>> expression)
+        {
+            if (expression == null)
+                throw new ArgumentNullException(nameof(expression), "The filter expression cannot be null.");
+
+            try
+            {
+                return await _dbSet.AnyAsync(expression);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error checking if entity of type {typeof(T).Name} exists.", ex);
+            }
+        }
+
 
         /// <summary>
         /// Finds an entity based on a given filter expression.
@@ -45,14 +85,24 @@ namespace CosmoVerse.Repositories
         /// <returns>The first entity matching the expression, or null if no match is found.</returns>
         /// <exception cref="ArgumentNullException">Thrown if the expression is null.</exception>
         /// <exception cref="Exception">Thrown if an error occurs during the database operation.</exception>
-        public async Task<T?> FindAsync(Expression<Func<T, bool>> expression)
+        public async Task<T?> FindAsync(Expression<Func<T, bool>> expression, params Expression<Func<T, object>>[] includes)
         {
             if (expression == null)
                 throw new ArgumentNullException(nameof(expression), "The filter expression cannot be null.");
 
+            IQueryable<T> query = _dbSet;
+
+            if (includes != null)
+            {
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            }
+
             try
             {
-                return await _dbSet.FirstOrDefaultAsync(expression);
+                return await query.FirstOrDefaultAsync(expression);
             }
             catch (Exception ex)
             {
@@ -67,14 +117,25 @@ namespace CosmoVerse.Repositories
         /// <returns>A list of entities that match the filter expression. Returns an empty list if no matches are found.</returns>
         /// <exception cref="ArgumentNullException">Thrown if the expression is null.</exception>
         /// <exception cref="Exception">Thrown if an error occurs during the database operation.</exception>
-        public async Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> expression)
+        public async Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> expression, params Expression<Func<T, object>>[] includes)
         {
             if (expression == null)
                 throw new ArgumentNullException(nameof(expression), "The filter expression cannot be null.");
 
+            IQueryable<T> query = _dbSet;
+
+            if (includes != null)
+            {
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            }
+
+
             try
             {
-                return await _dbSet.Where(expression).ToListAsync();
+                return await query.Where(expression).ToListAsync();
             }
             catch (Exception ex)
             {
@@ -173,6 +234,43 @@ namespace CosmoVerse.Repositories
                 }
 
                
+                _dbSet.Remove(entity);
+                await SaveChangesAsync();
+            }
+            catch (ArgumentException ex)
+            {
+                throw new Exception($"Error: {ex.Message}", ex);
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new Exception($"Database update failed while deleting entity with id {id}.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error deleting entity", ex);
+            }
+        }
+
+
+
+        /// <summary>
+        /// Delete entity from the database
+        /// </summary>
+        /// <param name="id">Id of entity to delete</param>
+        public async Task DeleteAsync(int id)
+        {
+            try
+            {
+                // Find entity by id
+                var entity = await FindByIdAsync(id);
+
+                // Throw exception if entity not found
+                if (entity == null)
+                {
+                    throw new ArgumentException($"Entity with id {id} not found.", nameof(id)); // Custom exception for not found
+                }
+
+
                 _dbSet.Remove(entity);
                 await SaveChangesAsync();
             }
