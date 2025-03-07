@@ -141,6 +141,7 @@ namespace CosmoVerse.Controllers
         [HttpPost("verify-email")]
         public async Task<ActionResult> VerifyEmail(string email, string token)
         {
+            Console.WriteLine($"[DEBUG] Email: {email}, Token: {token}");
             try
             {
                 // Verify email

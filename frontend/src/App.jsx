@@ -3,6 +3,7 @@ import Navbar from "./component/NavBar";
 import SolarSystem from "./component/SolarSystem";
 import Signup from "./component/Signup";
 import GalaxyLogin from "./component/GalaxyLogin";
+import VerificationPage from "./pages/VerificationPage ";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/" element={<SolarSystem />} />
           <Route path="/login" element={<GalaxyLogin />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/verification-page" element={<VerificationPage />} />
         </Routes>
       </div>
     </Router>
