@@ -115,8 +115,7 @@ namespace CosmoVerse.Services
             // Save the email verification record in the database
             await emailVerificationRepository.AddAsync(emailVerification);
 
-            // Update the user record with the email verification ID
-            user.EmailVerificationId = emailVerification.Id;
+            // Update the user record
             await repository.UpdateAsync(user);
 
             return true;
@@ -196,7 +195,7 @@ namespace CosmoVerse.Services
             await repository.UpdateAsync(user);
 
             // Delete the email verification record
-            await emailVerificationRepository.DeleteAsync(emailVerification.Id);
+            await emailVerificationRepository.DeleteAsync(emailVerification);
 
             return true;
         }
@@ -233,7 +232,6 @@ namespace CosmoVerse.Services
                     return false;
                 }
 
-                //var isEmailExist = await passwordResetRepository.FindAsync(e => e.UserId == user.Id);
                 var isEmailExist = user.PasswordReset;
 
                 // If email does not exist in password reset table then add it
@@ -249,8 +247,7 @@ namespace CosmoVerse.Services
                     };
                     await passwordResetRepository.AddAsync(passwordResetData);
 
-                    // Update the user record with the password reset ID
-                    user.PasswordResetId = passwordResetData.Id;
+                    // Update the user record
                     await repository.UpdateAsync(user);
                 }
                 else

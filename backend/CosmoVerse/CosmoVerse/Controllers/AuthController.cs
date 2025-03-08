@@ -139,12 +139,12 @@ namespace CosmoVerse.Controllers
         }
 
         [HttpPost("verify-email")]
-        public async Task<ActionResult> VerifyEmail(string email, string token)
+        public async Task<ActionResult> VerifyEmail(VerifyEmailDto verify)
         {
             try
             {
                 // Verify email
-                await emailService.VerifyEmailAsync(email, token);
+                await emailService.VerifyEmailAsync(verify.Email, verify.Token);
                 return Ok("Email verified successfully");
             }
             catch (Exception ex)
