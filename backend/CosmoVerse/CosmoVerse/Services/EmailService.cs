@@ -116,7 +116,7 @@ namespace CosmoVerse.Services
             await emailVerificationRepository.AddAsync(emailVerification);
 
             // Update the user record with the email verification ID
-            user.EmailVerificationId = emailVerification.Id;
+            //user.EmailVerificationId = emailVerification.Id;
             await repository.UpdateAsync(user);
 
             return true;
@@ -196,7 +196,7 @@ namespace CosmoVerse.Services
             await repository.UpdateAsync(user);
 
             // Delete the email verification record
-            await emailVerificationRepository.DeleteAsync(emailVerification.Id);
+            await emailVerificationRepository.DeleteAsync(emailVerification);
 
             return true;
         }
@@ -250,7 +250,7 @@ namespace CosmoVerse.Services
                     await passwordResetRepository.AddAsync(passwordResetData);
 
                     // Update the user record with the password reset ID
-                    user.PasswordResetId = passwordResetData.Id;
+                    //user.PasswordResetId = passwordResetData.Id;
                     await repository.UpdateAsync(user);
                 }
                 else
