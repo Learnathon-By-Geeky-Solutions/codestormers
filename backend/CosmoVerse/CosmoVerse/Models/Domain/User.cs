@@ -29,14 +29,9 @@ namespace CosmoVerse.Models.Domain
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 
-        // Email verification information
-        //public Guid? EmailVerificationId { get; set; }
         // Navigation property
         public virtual EmailVerification EmailVerification { get; set; }
 
-
-        // Password reset information
-        //public Guid? PasswordResetId { get; set; }
         // Navigation property
         public virtual PasswordReset PasswordReset { get; set; }
     }

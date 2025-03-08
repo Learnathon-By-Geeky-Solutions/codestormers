@@ -238,6 +238,7 @@ namespace CosmoVerse.Services
                 Id = user.Id,
                 Name = user.Name,
                 Email = user.Email,
+                IsEmailVerified = user.IsEmailVerified,
                 ProfilePictureUrl = user.ProfilePictureUrl
             };
             return userInfo;

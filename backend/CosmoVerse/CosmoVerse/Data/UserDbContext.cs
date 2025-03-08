@@ -20,19 +20,6 @@ namespace CosmoVerse.Data
                 .HasIndex(u => u.Email)
                 .IsUnique();
 
-            //modelBuilder.Entity<User>()
-            //    .HasOne(u => u.PasswordReset)
-            //    .WithOne(pr => pr.User)
-            //    .HasForeignKey<PasswordReset>(pr => pr.UserId)
-            //    .OnDelete(DeleteBehavior.SetNull);
-
-            //modelBuilder.Entity<User>()
-            //    .HasOne(u => u.EmailVerification)
-            //    .WithOne(ev => ev.User)
-            //    .HasForeignKey<EmailVerification>(ev => ev.UserId)
-            //    .OnDelete(DeleteBehavior.SetNull);
-
-
             // Configure one-to-one relationship between User and EmailVerification
             modelBuilder.Entity<User>()
                 .HasOne(u => u.EmailVerification)
