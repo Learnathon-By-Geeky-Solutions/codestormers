@@ -95,6 +95,26 @@ namespace CosmoVerse.Services
         }
 
 
+
+        public async Task<bool> UpdateUser(User user, UpdateProfileDto request)
+        {
+            user.Name = request.Name;
+            user.ProfilePictureUrl = request.ProfilePictureUrl;
+            try
+            {
+                await repository.UpdateAsync(user);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while updating the profile.", ex);
+            }
+            return true;
+        }
+
+
+
+
+
         /// <summary>
         /// Refreshes the user's access token using a valid refresh token.
         /// </summary>
