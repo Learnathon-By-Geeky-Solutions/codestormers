@@ -1,5 +1,6 @@
 ﻿using CosmoVerse.Models.Domain;
 using CosmoVerse.Models.Dto;
+using CosmoVerse.Repositories;
 using CosmoVerse.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -15,23 +16,30 @@ namespace CosmoVerse.Controllers
         private readonly ILogger<AuthController> _logger;
         private readonly IAuthService authService;
         private readonly IEmailService emailService;
-        public AuthController(ILogger<AuthController> logger, IAuthService authService, IEmailService emailService)
+        private readonly IRepository<User> userRepository;
+        public AuthController(ILogger<AuthController> logger, IAuthService authService, IEmailService emailService, IRepository<User> userRepository)
         {
             _logger = logger;
             this.authService = authService;
             this.emailService = emailService;
+            this.userRepository = userRepository;
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<User>> Register(UserDto request)
+        public async Task<ActionResult<User>> Register([FromBody] UserDto request)
         {
             try
             {
                 // Register user
                 var user = await authService.RegisterAsync(request);
 
+                if(user is null)
+                {
+                    return StatusCode(500, new { message = "An unexpected error occurred. Please try again later." }); 
+                }
+
                 // Send email for verification
-                if(!await emailService.SendEmailForVerifyAsync(user.Email))
+                if(!await emailService.SendEmailForVerifyAsync(user))
                 {
                     return StatusCode(StatusCodes.Status500InternalServerError, "Error sending verification email.");
                 }
@@ -45,7 +53,7 @@ namespace CosmoVerse.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<TokenResponseDto>> Login(UserLoginDto request)
+        public async Task<ActionResult<TokenResponseDto>> Login([FromBody] UserLoginDto request)
         {
             try
             {
@@ -88,8 +96,32 @@ namespace CosmoVerse.Controllers
         }
 
 
+        [Authorize]
+        [HttpPut("update-user")]
+        public async Task<ActionResult> UpdateUser([FromBody] UpdateProfileDto request)
+        {
+            var user = getUserFromCookie();
+            if (user is null)
+            {
+                return Unauthorized("User not found.");
+            }
+            try
+            {
+                await authService.UpdateUser(user, request);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An unexpected error occurred. Please try again later." });
+            }
+            return Ok();
+        }
+
+
+
+
+
         [HttpPost("refresh-token")]
-        public async Task<ActionResult<TokenResponseDto>> RefreshToken(RefreshTokenRequestDto request)
+        public async Task<ActionResult<TokenResponseDto>> RefreshToken([FromBody] RefreshTokenRequestDto request)
         {
             request.RefreshToken = Uri.UnescapeDataString(request.RefreshToken);
             var tokenResponse = await authService.RefreshTokensAsync(request);
@@ -102,35 +134,41 @@ namespace CosmoVerse.Controllers
         }
 
         [HttpPost("Sent-verification-email")]
-        public async Task<IActionResult> SentEmailForVerify(string toEmail)
+        public async Task<IActionResult> SentEmailForVerify()
         {
             try
             {
                 // Validate the email
-                if (string.IsNullOrWhiteSpace(toEmail))
+                //if (string.IsNullOrWhiteSpace(toEmail))
+                //{
+                //    return BadRequest(new { message = "Invalid email address." });
+                //}
+
+                var user = getUserFromCookie();
+
+                if (user is null)
                 {
-                    return BadRequest(new { message = "Invalid email address." });
+                    return Unauthorized("User not found.");
                 }
 
                 // Send email for verification
-                await emailService.SendEmailForVerifyAsync(toEmail);
+                await emailService.SendEmailForVerifyAsync(user);
 
                 return Ok(new { message = "Email sent successfully." });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to send verification email to {Email}", toEmail);
                 return StatusCode(500, new { message = "An error occurred while sending the email. Please try again later." });
             }
         }
 
         [HttpPost("verify-email")]
-        public async Task<ActionResult> VerifyEmail(string email, string token)
+        public async Task<ActionResult> VerifyEmail([FromBody] VerifyEmailDto verificationRequest)
         {
             try
             {
                 // Verify email
-                await emailService.VerifyEmailAsync(email, token);
+                await emailService.VerifyEmailAsync(verificationRequest.Email, verificationRequest.Token);
                 return Ok("Email verified successfully");
             }
             catch (Exception ex)
@@ -141,7 +179,7 @@ namespace CosmoVerse.Controllers
 
 
         [HttpPost("forgot-password-code")]
-        public async Task<IActionResult> ForgotPasswordCode(string email)
+        public async Task<IActionResult> ForgotPasswordCode([FromBody] string email)
         {
             try
             {
@@ -163,7 +201,7 @@ namespace CosmoVerse.Controllers
         }
 
         [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword(PasswordResetDto request)
+        public async Task<IActionResult> ResetPassword([FromBody] PasswordResetDto request)
         {
             try
             {
@@ -192,7 +230,7 @@ namespace CosmoVerse.Controllers
 
 
         [HttpPost("Logout")]
-        public async Task<IActionResult> Logout()
+        public IActionResult Logout()
         {
 
             // Define cookie options
@@ -237,6 +275,20 @@ namespace CosmoVerse.Controllers
             };
 
             Response.Cookies.Append("RefreshToken", RefreshToken, refreshTokenOptions);
+        }
+
+
+        // Helper method to get user from cookie
+        private User getUserFromCookie()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null)
+            {
+                return null;
+            }
+            var Id = Guid.Parse(userIdClaim);
+            var user = userRepository.FindByIdAsync(Id).Result;
+            return user;
         }
     }
 }

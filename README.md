@@ -9,7 +9,7 @@
 - atiq-bs23
 
 ## Project Description
-Add your project description here.
+CosmoVerse is an innovative project developed as part of the Learnathon initiative. It combines cutting-edge technologies to create an engaging learning platform where users can explore and understand galaxies. The application leverages 3D models to visualize planetary systems, user authentication for personalized experiences, and a robust backend for seamless performance.
 
 ## Getting Started
 1. Clone the repository

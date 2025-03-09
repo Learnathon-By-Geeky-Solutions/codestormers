@@ -6,7 +6,10 @@ namespace CosmoVerse.Models.Domain
     {
         [Key]
         [Required]
-        public Guid Id{ get; set; }
+        public Guid Id { get; set; }
+        public Guid UserId { get; set; }
+        public virtual User User { get; set; } = null!;
+
         [Required]
         [MaxLength(256)]
         public string Email { get; set; } = string.Empty;

@@ -60,11 +60,17 @@ namespace CosmoVerse.Services
         /// <returns>The newly created user record</returns>
         public async Task<User?> RegisterAsync(UserDto request)
         {
-            // Check if the email already exists in the database
-            var existingEmail = await repository.FindAsync(u => u.Email == request.Email);
-
-            // Throw an exception if the email already exists
-            if (existingEmail is not null)
+            bool existingEmail;
+            try
+            {
+                // Check if the email already exists in the database
+                existingEmail = await repository.ExistsAsync(u => u.Email == request.Email);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while checking the email.", ex);
+            }
+            if(existingEmail)
             {
                 throw new InvalidOperationException("Email already exists");
             }
@@ -87,6 +93,26 @@ namespace CosmoVerse.Services
             // Return the newly created user record
             return user;
         }
+
+
+
+        public async Task<bool> UpdateUser(User user, UpdateProfileDto request)
+        {
+            user.Name = request.Name;
+            user.ProfilePictureUrl = request.ProfilePictureUrl;
+            try
+            {
+                await repository.UpdateAsync(user);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while updating the profile.", ex);
+            }
+            return true;
+        }
+
+
+
 
 
         /// <summary>
@@ -232,6 +258,7 @@ namespace CosmoVerse.Services
                 Id = user.Id,
                 Name = user.Name,
                 Email = user.Email,
+                IsEmailVerified = user.IsEmailVerified,
                 ProfilePictureUrl = user.ProfilePictureUrl
             };
             return userInfo;
@@ -256,9 +283,10 @@ namespace CosmoVerse.Services
             {
                 throw new KeyNotFoundException("User not found.");
             }
-            var tokenDetails = await passwordResetRepository.FindAsync(p => p.Id == user.Id && p.Token == request.Token);
+            //var tokenDetails = await passwordResetRepository.FindAsync(p => p.UserId == user.Id && p.Token == request.Token);
+            var tokenDetails = user.PasswordReset;
 
-            if(tokenDetails is null) {
+            if (tokenDetails is null) {
                 throw new KeyNotFoundException("Invalid token.");
             }
             if (tokenDetails.ExpiryDate < DateTime.UtcNow)

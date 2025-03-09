@@ -28,5 +28,11 @@ namespace CosmoVerse.Models.Domain
         // Timestamps for account tracking
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+
+        // Navigation property
+        public virtual EmailVerification EmailVerification { get; set; }
+
+        // Navigation property
+        public virtual PasswordReset PasswordReset { get; set; }
     }
 }
