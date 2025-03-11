@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace CosmoVerse.Repositories
 {
-    public class Repository<T> : IRepository<T> where T : class
+    public class Repository<T, TId> : IRepository<T, TId> where T : class
     {
         private readonly UserDbContext _context;
         private readonly DbSet<T> _dbSet;
@@ -22,9 +22,9 @@ namespace CosmoVerse.Repositories
         /// <returns>The entity if found, otherwise null.</returns>
         /// <exception cref="ArgumentException">Thrown if the ID is invalid.</exception>
         /// <exception cref="Exception">Thrown if an error occurs during the database operation.</exception>
-        public async Task<T?> FindByIdAsync(Guid id)
+        public async Task<T?> FindByIdAsync(TId id)
         {
-            if (id == Guid.Empty)
+            if (id is null)
                 throw new ArgumentException("Id cannot be an empty GUID.", nameof(id));
 
             try
@@ -38,30 +38,12 @@ namespace CosmoVerse.Repositories
         }
 
         /// <summary>
-        /// Find entity by id
+        /// Check if entity exists in the database
         /// </summary>
-        /// <param name="id">Id of the model </param>
-        /// <returns>model data</returns>
-        /// <exception cref="ArgumentException"></exception>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="Exception"></exception>
-        public async Task<T?> FindByIdAsync(int id)
-        {
-            if (id == 0)
-                throw new ArgumentException("Id is not valid.", nameof(id));
-
-
-            try
-            {
-                return await _dbSet.FindAsync(id);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error finding entity of type {typeof(T).Name} with id {id}.", ex);
-            }
-        }
-
-
-
         public async Task<bool> ExistsAsync(Expression<Func<T, bool>> expression)
         {
             if (expression == null)
@@ -76,7 +58,6 @@ namespace CosmoVerse.Repositories
                 throw new Exception($"Error checking if entity of type {typeof(T).Name} exists.", ex);
             }
         }
-
 
         /// <summary>
         /// Finds an entity based on a given filter expression.
@@ -160,7 +141,6 @@ namespace CosmoVerse.Repositories
             }
         }
 
-
         /// <summary>
         /// Adds a new entity to the database.
         /// </summary>
@@ -183,7 +163,6 @@ namespace CosmoVerse.Repositories
                 throw new Exception($"Error adding entity of type {typeof(T).Name}.", ex);
             }
         }
-
 
         /// <summary>
         /// Updates an entity in the database.
@@ -214,13 +193,11 @@ namespace CosmoVerse.Repositories
             }
         }
 
-
-
         /// <summary>
         /// Delete entity from the database
         /// </summary>
         /// <param name="id">Id of entity to delete</param>
-        public async Task DeleteAsync(Guid id)
+        public async Task DeleteAsync(TId id)
         {
             try
             {
@@ -232,44 +209,6 @@ namespace CosmoVerse.Repositories
                 {
                     throw new ArgumentException($"Entity with id {id} not found.", nameof(id)); // Custom exception for not found
                 }
-
-               
-                _dbSet.Remove(entity);
-                await SaveChangesAsync();
-            }
-            catch (ArgumentException ex)
-            {
-                throw new Exception($"Error: {ex.Message}", ex);
-            }
-            catch (DbUpdateException ex)
-            {
-                throw new Exception($"Database update failed while deleting entity with id {id}.", ex);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error deleting entity", ex);
-            }
-        }
-
-
-
-        /// <summary>
-        /// Delete entity from the database
-        /// </summary>
-        /// <param name="id">Id of entity to delete</param>
-        public async Task DeleteAsync(int id)
-        {
-            try
-            {
-                // Find entity by id
-                var entity = await FindByIdAsync(id);
-
-                // Throw exception if entity not found
-                if (entity == null)
-                {
-                    throw new ArgumentException($"Entity with id {id} not found.", nameof(id)); // Custom exception for not found
-                }
-
 
                 _dbSet.Remove(entity);
                 await SaveChangesAsync();
@@ -287,8 +226,6 @@ namespace CosmoVerse.Repositories
                 throw new Exception("Error deleting entity", ex);
             }
         }
-
-
 
         /// <summary>
         /// Deletes an entity from the database.
@@ -319,9 +256,6 @@ namespace CosmoVerse.Repositories
                 throw new Exception($"Error deleting entity of type {typeof(T).Name}.", ex);
             }
         }
-
-
-
 
         /// <summary>
         /// Save changes to the database.

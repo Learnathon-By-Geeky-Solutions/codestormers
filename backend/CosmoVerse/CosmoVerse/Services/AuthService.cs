@@ -15,13 +15,13 @@ namespace CosmoVerse.Services
     public class AuthService : IAuthService
     {
         private readonly IConfiguration Configuration;
-        private readonly IRepository<User> repository;
-        private readonly IRepository<PasswordReset> passwordResetRepository;
+        private readonly IRepository<User, Guid> repository;
+        private readonly IRepository<PasswordReset, Guid> passwordResetRepository;
         private readonly IEmailService emailService;
 
 
         // Injecting IConfiguration and IRepository<User> into the constructor
-        public AuthService(IConfiguration Configuration, IRepository<User> repository, IEmailService emailService, IRepository<PasswordReset> passwordResetRepository)
+        public AuthService(IConfiguration Configuration, IRepository<User, Guid> repository, IEmailService emailService, IRepository<PasswordReset, Guid> passwordResetRepository)
         {
             this.Configuration = Configuration;
             this.repository = repository;

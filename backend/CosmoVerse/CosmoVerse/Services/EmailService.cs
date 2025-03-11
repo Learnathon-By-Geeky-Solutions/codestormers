@@ -9,14 +9,14 @@ namespace CosmoVerse.Services
     public class EmailService : IEmailService
     {
         private readonly IConfiguration _configuration;
-        private readonly IRepository<User> repository;
-        private readonly IRepository<PasswordReset> passwordResetRepository;
-        private readonly IRepository<EmailVerification> emailVerificationRepository;
+        private readonly IRepository<User, Guid> repository;
+        private readonly IRepository<PasswordReset, Guid> passwordResetRepository;
+        private readonly IRepository<EmailVerification, Guid> emailVerificationRepository;
 
 
 
         // Injecting IConfiguration and IRepository<User> and IRepository<EmailVerification> into the constructor
-        public EmailService(IConfiguration Configuration, IRepository<User> repository, IRepository<EmailVerification> emailVerificationRepository, IRepository<PasswordReset> passwordResetRepository)
+        public EmailService(IConfiguration Configuration, IRepository<User, Guid> repository, IRepository<EmailVerification, Guid> emailVerificationRepository, IRepository<PasswordReset, Guid> passwordResetRepository)
         {
             _configuration = Configuration;
             this.repository = repository;
