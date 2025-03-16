@@ -3,7 +3,6 @@ using CosmoVerse.Models.Dto;
 using CosmoVerse.Repositories;
 using CosmoVerse.Services.Results;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
