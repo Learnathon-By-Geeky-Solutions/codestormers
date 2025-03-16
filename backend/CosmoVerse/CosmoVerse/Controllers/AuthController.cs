@@ -16,8 +16,8 @@ namespace CosmoVerse.Controllers
         private readonly ILogger<AuthController> _logger;
         private readonly IAuthService authService;
         private readonly IEmailService emailService;
-        private readonly IRepository<User> userRepository;
-        public AuthController(ILogger<AuthController> logger, IAuthService authService, IEmailService emailService, IRepository<User> userRepository)
+        private readonly IRepository<User, Guid> userRepository;
+        public AuthController(ILogger<AuthController> logger, IAuthService authService, IEmailService emailService, IRepository<User, Guid> userRepository)
         {
             _logger = logger;
             this.authService = authService;

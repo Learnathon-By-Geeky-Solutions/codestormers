@@ -71,7 +71,7 @@ builder.Services.AddCors(options =>
 
 
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
 builder.Services.AddTransient<IEmailService, EmailService>();
 
 var app = builder.Build();
