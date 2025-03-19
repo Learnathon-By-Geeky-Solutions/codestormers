@@ -3,6 +3,7 @@ using System.Net;
 using CosmoVerse.Models.Domain;
 using CosmoVerse.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace CosmoVerse.Services
 {

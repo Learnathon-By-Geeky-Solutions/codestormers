@@ -1,4 +1,6 @@
-﻿using CosmoVerse.Services;
+﻿using CosmoVerse.Repositories;
+using CosmoVerse.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -11,10 +13,11 @@ namespace CosmoVerse.Application
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddApplication(this IServiceCollection service)
+        public static IServiceCollection AddApplication(this IServiceCollection service, IConfiguration configuration)
         {
             service.AddScoped<IAuthService, AuthService>();
             service.AddTransient<IEmailService, EmailService>();
+            service.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
             return service;
         }
     }

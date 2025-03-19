@@ -3,6 +3,7 @@ using CosmoVerse.Models.Dto;
 using CosmoVerse.Repositories;
 using CosmoVerse.Services.Results;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -225,13 +226,13 @@ namespace CosmoVerse.Services
                 };
 
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(Configuration.GetValue<string>("AppSettings:Token")!)); // Get the secret key from appsettings.json
+                Encoding.UTF8.GetBytes(Configuration["AppSettings:Token"]!)); // Get the secret key from appsettings.json
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512); // Create signing credentials
 
             var tokenDescriptor = new JwtSecurityToken(
-                issuer: Configuration.GetValue<string>("AppSettings:Issuer"),
-                audience: Configuration.GetValue<string>("AppSettings:Audience"),
+                issuer: Configuration["AppSettings:Issuer"],
+                audience: Configuration["AppSettings:Audience"],
                 claims: claims,
                 expires: DateTime.UtcNow.AddDays(1),
                 signingCredentials: creds

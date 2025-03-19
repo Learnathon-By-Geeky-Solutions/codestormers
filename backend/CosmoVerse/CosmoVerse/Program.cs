@@ -1,3 +1,4 @@
+using CosmoVerse.Application;
 using CosmoVerse.Data;
 using CosmoVerse.Repositories;
 using CosmoVerse.Services;
@@ -16,7 +17,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<UserDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DatabaseConnectionString")).UseLazyLoadingProxies());
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DatabaseConnectionString"),
+        b => b.MigrationsAssembly("CosmoVerse.Infrastructure")).UseLazyLoadingProxies());
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
     options.TokenValidationParameters = new TokenValidationParameters
@@ -70,15 +73,18 @@ builder.Services.AddCors(options =>
 });
 
 
-builder.Services.Configure<CosmoVerse.Infrastructure.Settings.CosmoVerseSettings>(
-    builder.Configuration.GetSection("AppSettings"));
+//builder.Services.Configure<CosmoVerse.Infrastructure.Settings.CosmoVerseSettings>(
+//    builder.Configuration.GetSection("AppSettings"));
 
-builder.Services.Configure<CosmoVerse.Infrastructure.Settings.CosmoVerseSettings>(
-    builder.Configuration.GetSection("EmailSettings"));
+//builder.Services.Configure<CosmoVerse.Infrastructure.Settings.CosmoVerseSettings>(
+//    builder.Configuration.GetSection("EmailSettings"));
 
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
-builder.Services.AddTransient<IEmailService, EmailService>();
+//builder.Services.AddScoped<IAuthService, AuthService>();
+//builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
+//builder.Services.AddTransient<IEmailService, EmailService>();
+
+builder.Services.AddApplication(builder.Configuration);
+
 
 var app = builder.Build();
 
