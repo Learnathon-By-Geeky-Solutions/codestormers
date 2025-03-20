@@ -73,15 +73,8 @@ builder.Services.AddCors(options =>
 });
 
 
-//builder.Services.Configure<CosmoVerse.Infrastructure.Settings.CosmoVerseSettings>(
-//    builder.Configuration.GetSection("AppSettings"));
+builder.Services.AddHttpContextAccessor();
 
-//builder.Services.Configure<CosmoVerse.Infrastructure.Settings.CosmoVerseSettings>(
-//    builder.Configuration.GetSection("EmailSettings"));
-
-//builder.Services.AddScoped<IAuthService, AuthService>();
-//builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
-//builder.Services.AddTransient<IEmailService, EmailService>();
 
 builder.Services.AddApplication(builder.Configuration);
 
