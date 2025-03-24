@@ -25,7 +25,7 @@ namespace CosmoVerse.Repositories
         public async Task<T?> FindByIdAsync(TId id)
         {
             if (id is null)
-                throw new ArgumentNullException("Id cannot be an empty GUID.", nameof(id));
+                throw new ArgumentNullException(nameof(id), "Id cannot be an empty GUID.");
 
             try
             {
