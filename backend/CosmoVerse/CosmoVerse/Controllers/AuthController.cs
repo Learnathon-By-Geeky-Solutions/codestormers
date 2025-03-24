@@ -17,14 +17,12 @@ namespace CosmoVerse.Controllers
         private readonly ILogger<AuthController> _logger;
         private readonly IAuthService _authService;
         private readonly IEmailService _emailService;
-        private readonly IRepository<User, Guid> _userRepository;
         private readonly IUserService _userService;
-        public AuthController(ILogger<AuthController> logger, IAuthService authService, IEmailService emailService, IRepository<User, Guid> userRepository, IUserService userService)
+        public AuthController(ILogger<AuthController> logger, IAuthService authService, IEmailService emailService, IUserService userService)
         {
             _logger = logger;
             _authService = authService;
             _emailService = emailService;
-            _userRepository = userRepository;
             _userService = userService;
         }
 

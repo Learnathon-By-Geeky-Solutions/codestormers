@@ -10,19 +10,19 @@ namespace CosmoVerse.Services
     public class EmailService : IEmailService
     {
         private readonly IConfiguration _configuration;
-        private readonly IRepository<User, Guid> repository;
-        private readonly IRepository<PasswordReset, Guid> passwordResetRepository;
-        private readonly IRepository<EmailVerification, Guid> emailVerificationRepository;
+        private readonly IRepository<User, Guid> _repository;
+        private readonly IRepository<PasswordReset, Guid> _passwordResetRepository;
+        private readonly IRepository<EmailVerification, Guid> _emailVerificationRepository;
 
 
 
         // Injecting IConfiguration and IRepository<User> and IRepository<EmailVerification> into the constructor
-        public EmailService(IConfiguration Configuration, IRepository<User, Guid> repository, IRepository<EmailVerification, Guid> emailVerificationRepository, IRepository<PasswordReset, Guid> passwordResetRepository)
+        public EmailService(IConfiguration Configuration, IRepository<User, Guid> _repository, IRepository<EmailVerification, Guid> _emailVerificationRepository, IRepository<PasswordReset, Guid> _passwordResetRepository)
         {
             _configuration = Configuration;
-            this.repository = repository;
-            this.emailVerificationRepository = emailVerificationRepository;
-            this.passwordResetRepository = passwordResetRepository;
+            this._repository = _repository;
+            this._emailVerificationRepository = _emailVerificationRepository;
+            this._passwordResetRepository = _passwordResetRepository;
         }
 
 
@@ -71,7 +71,7 @@ namespace CosmoVerse.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Failed to send email", ex);
+                throw new InvalidOperationException("Failed to send email", ex);
             }
         }
 
@@ -85,13 +85,10 @@ namespace CosmoVerse.Services
         /// <returns>True if the token was saved successfully</returns>
         public async Task<bool> SaveEmailVerificationTokenAsync(User user, string token)
         {
-            // Find the user by email
-            //var user = await repository.FindAsync(u => u.Email == email);
-
             // Throw an exception if the user does not exist
             if (user == null)
             {
-                throw new Exception("User not found");
+                throw new KeyNotFoundException("User not found");
             }
 
             // Find the existing email verification record
@@ -100,7 +97,7 @@ namespace CosmoVerse.Services
             // Delete the existing email verification record if it exists
             if (existingEmailVerification != null)
             {
-                await emailVerificationRepository.DeleteAsync(existingEmailVerification.Id);
+                await _emailVerificationRepository.DeleteAsync(existingEmailVerification.Id);
             }
 
             // Create a new email verification record
@@ -114,10 +111,10 @@ namespace CosmoVerse.Services
             };
 
             // Save the email verification record in the database
-            await emailVerificationRepository.AddAsync(emailVerification);
+            await _emailVerificationRepository.AddAsync(emailVerification);
 
             // Update the user record
-            await repository.UpdateAsync(user);
+            await _repository.UpdateAsync(user);
 
             return true;
         }
@@ -155,7 +152,7 @@ namespace CosmoVerse.Services
             }
 
             // Throw an exception if sending the email fails
-            throw new Exception("Failed to send email");
+            throw new InvalidOperationException("Failed to send email");
         }
 
 
@@ -168,35 +165,35 @@ namespace CosmoVerse.Services
         public async Task<bool> VerifyEmailAsync(string email, string token)
         {
             // Find the email verification record by email and token
-            var emailVerification = await emailVerificationRepository.FindAsync(e => e.Email == email && e.Token == token);
+            var emailVerification = await _emailVerificationRepository.FindAsync(e => e.Email == email && e.Token == token);
 
             // Throw an exception if the token is invalid or expired
             if (emailVerification == null)
             {
-                throw new Exception("Invalid token");
+                throw new InvalidOperationException("Invalid token");
             }
             if (emailVerification.ExpiryTime < DateTime.UtcNow)
             {
-                throw new Exception("Token expired");
+                throw new InvalidOperationException("Token expired");
             }
 
             // Find the user by email
-            var user = await repository.FindByIdAsync(emailVerification.UserId);
+            var user = await _repository.FindByIdAsync(emailVerification.UserId);
 
             // Throw an exception if the user does not exist
             if (user == null)
             {
-                throw new Exception("User not found");
+                throw new KeyNotFoundException("User not found");
             }
 
             // Update the user's email verification status
             user.IsEmailVerified = true;
 
             // Save the updated user record
-            await repository.UpdateAsync(user);
+            await _repository.UpdateAsync(user);
 
             // Delete the email verification record
-            await emailVerificationRepository.DeleteAsync(emailVerification);
+            await _emailVerificationRepository.DeleteAsync(emailVerification);
 
             return true;
         }
@@ -225,7 +222,7 @@ namespace CosmoVerse.Services
             if (await SendEmailAsync(toEmail, subject, message))
             {
                 // Find user by email
-                var user = await repository.FindAsync(e => e.Email == toEmail, u => u.PasswordReset);
+                var user = await _repository.FindAsync(e => e.Email == toEmail, u => u.PasswordReset);
 
                 // If user not found then return false
                 if (user is null)
@@ -246,17 +243,17 @@ namespace CosmoVerse.Services
                         Token = token,
                         ExpiryDate = DateTime.UtcNow.AddMinutes(10)
                     };
-                    await passwordResetRepository.AddAsync(passwordResetData);
+                    await _passwordResetRepository.AddAsync(passwordResetData);
 
                     // Update the user record
-                    await repository.UpdateAsync(user);
+                    await _repository.UpdateAsync(user);
                 }
                 else
                 {
                     // If email exist in password reset table then update the token and expiry date
                     isEmailExist.Token = token;
                     isEmailExist.ExpiryDate = DateTime.UtcNow.AddMinutes(10);
-                    await passwordResetRepository.UpdateAsync(isEmailExist);
+                    await _passwordResetRepository.UpdateAsync(isEmailExist);
                 }
 
                 return true;
@@ -269,7 +266,7 @@ namespace CosmoVerse.Services
 
 
         
-        private string generateToken(int length)
+        private static string generateToken(int length)
         {
             const string validChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             Random rand = new Random();
