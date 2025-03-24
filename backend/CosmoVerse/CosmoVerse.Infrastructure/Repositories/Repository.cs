@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace CosmoVerse.Repositories
 {
-    public class Repository<T> : IRepository<T> where T : class
+    public class Repository<T, TId> : IRepository<T, TId> where T : class
     {
         private readonly UserDbContext _context;
         private readonly DbSet<T> _dbSet;
@@ -22,10 +22,10 @@ namespace CosmoVerse.Repositories
         /// <returns>The entity if found, otherwise null.</returns>
         /// <exception cref="ArgumentException">Thrown if the ID is invalid.</exception>
         /// <exception cref="Exception">Thrown if an error occurs during the database operation.</exception>
-        public async Task<T?> FindByIdAsync(Guid id)
+        public async Task<T?> FindByIdAsync(TId id)
         {
-            if (id == Guid.Empty)
-                throw new ArgumentException("Id cannot be an empty GUID.", nameof(id));
+            if (id is null)
+                throw new ArgumentNullException(nameof(id), "Id cannot be an empty GUID.");
 
             try
             {
@@ -33,62 +33,43 @@ namespace CosmoVerse.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error finding entity of type {typeof(T).Name} with id {id}.", ex);
+                throw new InvalidOperationException($"Error finding entity of type {typeof(T).Name} with id {id}.", ex);
             }
         }
 
         /// <summary>
-        /// Find entity by id
+        /// Check if entity exists in the database
         /// </summary>
-        /// <param name="id">Id of the model </param>
-        /// <returns>model data</returns>
-        /// <exception cref="ArgumentException"></exception>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="Exception"></exception>
-        public async Task<T?> FindByIdAsync(int id)
+        public async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate)
         {
-            if (id == 0)
-                throw new ArgumentException("Id is not valid.", nameof(id));
-
+            if (predicate == null)
+                throw new ArgumentNullException(nameof(predicate), "The filter predicate cannot be null.");
 
             try
             {
-                return await _dbSet.FindAsync(id);
+                return await _dbSet.AnyAsync(predicate);
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error finding entity of type {typeof(T).Name} with id {id}.", ex);
+                throw new InvalidOperationException($"Error checking if entity of type {typeof(T).Name} exists.", ex);
             }
         }
-
-
-
-        public async Task<bool> ExistsAsync(Expression<Func<T, bool>> expression)
-        {
-            if (expression == null)
-                throw new ArgumentNullException(nameof(expression), "The filter expression cannot be null.");
-
-            try
-            {
-                return await _dbSet.AnyAsync(expression);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error checking if entity of type {typeof(T).Name} exists.", ex);
-            }
-        }
-
 
         /// <summary>
-        /// Finds an entity based on a given filter expression.
+        /// Finds an entity based on a given filter predicate.
         /// </summary>
-        /// <param name="expression">A LINQ expression to filter the data.</param>
-        /// <returns>The first entity matching the expression, or null if no match is found.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if the expression is null.</exception>
+        /// <param name="predicate">A LINQ predicate to filter the data.</param>
+        /// <returns>The first entity matching the predicate, or null if no match is found.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if the predicate is null.</exception>
         /// <exception cref="Exception">Thrown if an error occurs during the database operation.</exception>
-        public async Task<T?> FindAsync(Expression<Func<T, bool>> expression, params Expression<Func<T, object>>[] includes)
+        public async Task<T?> FindAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
         {
-            if (expression == null)
-                throw new ArgumentNullException(nameof(expression), "The filter expression cannot be null.");
+            if (predicate == null)
+                throw new ArgumentNullException(nameof(predicate), "The filter predicate cannot be null.");
 
             IQueryable<T> query = _dbSet;
 
@@ -102,25 +83,25 @@ namespace CosmoVerse.Repositories
 
             try
             {
-                return await query.FirstOrDefaultAsync(expression);
+                return await query.FirstOrDefaultAsync(predicate);
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error finding entity of type {typeof(T).Name} with the given expression.", ex);
+                throw new InvalidOperationException($"Error finding entity of type {typeof(T).Name} with the given predicate.", ex);
             }
         }
 
         /// <summary>
-        /// Finds all entities matching a given filter expression.
+        /// Finds all entities matching a given filter predicate.
         /// </summary>
-        /// <param name="expression">A LINQ expression to filter the data.</param>
-        /// <returns>A list of entities that match the filter expression. Returns an empty list if no matches are found.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if the expression is null.</exception>
+        /// <param name="predicate">A LINQ predicate to filter the data.</param>
+        /// <returns>A list of entities that match the filter predicate. Returns an empty list if no matches are found.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if the predicate is null.</exception>
         /// <exception cref="Exception">Thrown if an error occurs during the database operation.</exception>
-        public async Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> expression, params Expression<Func<T, object>>[] includes)
+        public async Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
         {
-            if (expression == null)
-                throw new ArgumentNullException(nameof(expression), "The filter expression cannot be null.");
+            if (predicate == null)
+                throw new ArgumentNullException(nameof(predicate), "The filter predicate cannot be null.");
 
             IQueryable<T> query = _dbSet;
 
@@ -135,11 +116,11 @@ namespace CosmoVerse.Repositories
 
             try
             {
-                return await query.Where(expression).ToListAsync();
+                return await query.Where(predicate).ToListAsync();
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error finding all entities of type {typeof(T).Name} with the given expression.", ex);
+                throw new InvalidOperationException($"Error finding all entities of type {typeof(T).Name} with the given predicate.", ex);
             }
         }
 
@@ -156,10 +137,9 @@ namespace CosmoVerse.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error retrieving all entities of type {typeof(T).Name}.", ex);
+                throw new InvalidOperationException($"Error retrieving all entities of type {typeof(T).Name}.", ex);
             }
         }
-
 
         /// <summary>
         /// Adds a new entity to the database.
@@ -180,10 +160,9 @@ namespace CosmoVerse.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error adding entity of type {typeof(T).Name}.", ex);
+                throw new InvalidOperationException($"Error adding entity of type {typeof(T).Name}.", ex);
             }
         }
-
 
         /// <summary>
         /// Updates an entity in the database.
@@ -203,24 +182,25 @@ namespace CosmoVerse.Repositories
                 _dbSet.Update(entity);
                 await SaveChangesAsync();
             }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                throw new InvalidOperationException($"Concurrency conflict occurred while updating entity of type {typeof(T).Name}.", ex);
+            }
             catch (DbUpdateException ex)
             {
-                
-                throw new Exception($"Database update failed for entity of type {typeof(T).Name}.", ex);
+                throw new InvalidOperationException($"Database update failed for entity of type {typeof(T).Name}.", ex);
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error updating entity of type {typeof(T).Name}.", ex);
+                throw new InvalidOperationException($"Unexpected Error updating entity of type {typeof(T).Name}.", ex);
             }
         }
-
-
 
         /// <summary>
         /// Delete entity from the database
         /// </summary>
         /// <param name="id">Id of entity to delete</param>
-        public async Task DeleteAsync(Guid id)
+        public async Task DeleteAsync(TId id)
         {
             try
             {
@@ -233,62 +213,22 @@ namespace CosmoVerse.Repositories
                     throw new ArgumentException($"Entity with id {id} not found.", nameof(id)); // Custom exception for not found
                 }
 
-               
                 _dbSet.Remove(entity);
                 await SaveChangesAsync();
             }
             catch (ArgumentException ex)
             {
-                throw new Exception($"Error: {ex.Message}", ex);
+                throw new InvalidOperationException($"Error: {ex.Message}", ex);
             }
             catch (DbUpdateException ex)
             {
-                throw new Exception($"Database update failed while deleting entity with id {id}.", ex);
+                throw new InvalidOperationException($"Database update failed while deleting entity with id {id}.", ex);
             }
             catch (Exception ex)
             {
-                throw new Exception("Error deleting entity", ex);
+                throw new InvalidOperationException("Error deleting entity", ex);
             }
         }
-
-
-
-        /// <summary>
-        /// Delete entity from the database
-        /// </summary>
-        /// <param name="id">Id of entity to delete</param>
-        public async Task DeleteAsync(int id)
-        {
-            try
-            {
-                // Find entity by id
-                var entity = await FindByIdAsync(id);
-
-                // Throw exception if entity not found
-                if (entity == null)
-                {
-                    throw new ArgumentException($"Entity with id {id} not found.", nameof(id)); // Custom exception for not found
-                }
-
-
-                _dbSet.Remove(entity);
-                await SaveChangesAsync();
-            }
-            catch (ArgumentException ex)
-            {
-                throw new Exception($"Error: {ex.Message}", ex);
-            }
-            catch (DbUpdateException ex)
-            {
-                throw new Exception($"Database update failed while deleting entity with id {id}.", ex);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error deleting entity", ex);
-            }
-        }
-
-
 
         /// <summary>
         /// Deletes an entity from the database.
@@ -312,16 +252,13 @@ namespace CosmoVerse.Repositories
             }
             catch (DbUpdateException ex)
             {
-                throw new Exception($"Database update failed while deleting entity of type {typeof(T).Name}.", ex);
+                throw new InvalidOperationException($"Database update failed while deleting entity of type {typeof(T).Name}.", ex);
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error deleting entity of type {typeof(T).Name}.", ex);
+                throw new InvalidOperationException($"Error deleting entity of type {typeof(T).Name}.", ex);
             }
         }
-
-
-
 
         /// <summary>
         /// Save changes to the database.
@@ -336,11 +273,11 @@ namespace CosmoVerse.Repositories
             }
             catch (DbUpdateException ex)
             {
-                throw new Exception("An error occurred while updating the database.", ex);
+                throw new InvalidOperationException("An error occurred while updating the database.", ex);
             }
             catch (Exception ex)
             {
-                throw new Exception("An unexpected error occurred while saving changes.", ex);
+                throw new InvalidOperationException("An unexpected error occurred while saving changes.", ex);
             }
         }
     }

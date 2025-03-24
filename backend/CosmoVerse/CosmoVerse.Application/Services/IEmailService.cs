@@ -1,5 +1,4 @@
 ﻿using CosmoVerse.Models.Domain;
-using Microsoft.AspNetCore.Mvc;
 
 namespace CosmoVerse.Services
 {
