@@ -1,5 +1,6 @@
 using CosmoVerse.Application;
 using CosmoVerse.Data;
+using CosmoVerse.Infrastructure;
 using CosmoVerse.Repositories;
 using CosmoVerse.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -76,7 +77,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddHttpContextAccessor();
 
 
-builder.Services.AddApplication(builder.Configuration);
+builder.Services.AddInfrastructure(builder.Configuration);
 
 
 var app = builder.Build();
