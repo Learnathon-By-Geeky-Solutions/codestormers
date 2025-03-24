@@ -3,7 +3,7 @@ using CosmoVerse.Models.Dto;
 using CosmoVerse.Repositories;
 using CosmoVerse.Services.Results;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -14,19 +14,17 @@ namespace CosmoVerse.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly IConfiguration Configuration;
-        private readonly IRepository<User> repository;
-        private readonly IRepository<PasswordReset> passwordResetRepository;
-        private readonly IEmailService emailService;
+        private readonly IConfiguration _configuration;
+        private readonly IRepository<User, Guid> _repository;
+        private readonly IRepository<PasswordReset, Guid> _passwordResetRepository;
 
 
         // Injecting IConfiguration and IRepository<User> into the constructor
-        public AuthService(IConfiguration Configuration, IRepository<User> repository, IEmailService emailService, IRepository<PasswordReset> passwordResetRepository)
+        public AuthService(IConfiguration _configuration, IRepository<User, Guid> _repository, IRepository<PasswordReset, Guid> _passwordResetRepository)
         {
-            this.Configuration = Configuration;
-            this.repository = repository;
-            this.emailService = emailService;
-            this.passwordResetRepository = passwordResetRepository;
+            this._configuration = _configuration;
+            this._repository = _repository;
+            this._passwordResetRepository = _passwordResetRepository;
         }
 
 
@@ -39,7 +37,7 @@ namespace CosmoVerse.Services
         public async Task<AuthResult> LoginAsync(UserLoginDto request)
         {
             // Find the user by email
-            var user = await repository.FindAsync(u => u.Email == request.Email);
+            var user = await _repository.FindAsync(u => u.Email == request.Email);
 
             // Check if user does not exist
             if (user is null || new PasswordHasher<User>().VerifyHashedPassword(user, user.PasswordHash, request.Password) == PasswordVerificationResult.Failed)
@@ -64,11 +62,11 @@ namespace CosmoVerse.Services
             try
             {
                 // Check if the email already exists in the database
-                existingEmail = await repository.ExistsAsync(u => u.Email == request.Email);
+                existingEmail = await _repository.ExistsAsync(u => u.Email == request.Email);
             }
             catch (Exception ex)
             {
-                throw new Exception("An error occurred while checking the email.", ex);
+                throw new InvalidOperationException("An error occurred while checking the email.", ex);
             }
             if(existingEmail)
             {
@@ -88,7 +86,7 @@ namespace CosmoVerse.Services
             user.UpdatedAt = DateTime.UtcNow;
 
             // Add the user to the database
-            await repository.AddAsync(user);
+            await _repository.AddAsync(user);
 
             // Return the newly created user record
             return user;
@@ -102,11 +100,11 @@ namespace CosmoVerse.Services
             user.ProfilePictureUrl = request.ProfilePictureUrl;
             try
             {
-                await repository.UpdateAsync(user);
+                await _repository.UpdateAsync(user);
             }
             catch (Exception ex)
             {
-                throw new Exception("An error occurred while updating the profile.", ex);
+                throw new InvalidOperationException("An error occurred while updating the profile.", ex);
             }
             return true;
         }
@@ -128,7 +126,7 @@ namespace CosmoVerse.Services
             // Throw an exception if the refresh token is invalid
             if (user is null)
             {
-                throw new Exception("Invalid refresh token");
+                throw new InvalidOperationException("Invalid refresh token");
             }
 
             // Return a token response containing new access token and refresh token if the refresh token is valid
@@ -145,10 +143,7 @@ namespace CosmoVerse.Services
         private async Task<User?> ValidateRefreshTokenAsync(string refreshToken)
         {
 
-            var user = await repository.FindAsync(u=> u.RefreshToken == refreshToken);
-
-            // Find the user by Id
-            //var user = await repository.FindByIdAsync(userId);
+            var user = await _repository.FindAsync(u=> u.RefreshToken == refreshToken);
 
             // Check if the user exists and the refresh token is valid
             if (user is null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
@@ -190,7 +185,7 @@ namespace CosmoVerse.Services
             user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7); // Set the expiry time for the refresh token
 
             // Update the user record with the new refresh token in the database
-            await repository.UpdateAsync(user);
+            await _repository.UpdateAsync(user);
 
             return refreshToken;
         }
@@ -200,7 +195,7 @@ namespace CosmoVerse.Services
         /// Generates a new refresh token.
         /// </summary>
         /// <returns>The newly generated refresh token</returns>
-        private string GenerateRefreshToken()
+        private static string GenerateRefreshToken()
         {
             var randomNumber = new byte[32];
             using var rng = RandomNumberGenerator.Create();
@@ -226,13 +221,13 @@ namespace CosmoVerse.Services
                 };
 
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(Configuration.GetValue<string>("AppSettings:Token")!)); // Get the secret key from appsettings.json
+                Encoding.UTF8.GetBytes(_configuration["AppSettings:Token"]!)); // Get the secret key from appsettings.json
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512); // Create signing credentials
 
             var tokenDescriptor = new JwtSecurityToken(
-                issuer: Configuration.GetValue<string>("AppSettings:Issuer"),
-                audience: Configuration.GetValue<string>("AppSettings:Audience"),
+                issuer: _configuration["AppSettings:Issuer"],
+                audience: _configuration["AppSettings:Audience"],
                 claims: claims,
                 expires: DateTime.UtcNow.AddDays(1),
                 signingCredentials: creds
@@ -248,7 +243,7 @@ namespace CosmoVerse.Services
         /// <returns>User information</returns>
         public async Task<UserInfoDto?> GetUserAsync(Guid Id)
         {
-            var user = await repository.FindByIdAsync(Id);
+            var user = await _repository.FindByIdAsync(Id);
             if (user is null)
             {
                 return null;
@@ -277,13 +272,13 @@ namespace CosmoVerse.Services
                 throw new ArgumentException("Email and password must not be empty.");
             }
 
-            var user = await repository.FindAsync(u => u.Email == request.Email);
+            var user = await _repository.FindAsync(u => u.Email == request.Email);
 
             if (user is null)
             {
                 throw new KeyNotFoundException("User not found.");
             }
-            //var tokenDetails = await passwordResetRepository.FindAsync(p => p.UserId == user.Id && p.Token == request.Token);
+           
             var tokenDetails = user.PasswordReset;
 
             if (tokenDetails is null) {
@@ -300,15 +295,15 @@ namespace CosmoVerse.Services
             try
             {
                 // Update the user password
-                await repository.UpdateAsync(user);
+                await _repository.UpdateAsync(user);
 
                 // Delete the password reset token
-                await passwordResetRepository.DeleteAsync(tokenDetails);
+                await _passwordResetRepository.DeleteAsync(tokenDetails);
                 return true;
             }
             catch (Exception ex)
             {
-                throw new ApplicationException("An error occurred while resetting the password.", ex);
+                throw new InvalidOperationException("An error occurred while resetting the password.", ex);
             }
         }
     }
