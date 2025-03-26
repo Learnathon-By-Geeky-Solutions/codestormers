@@ -122,12 +122,24 @@ namespace CosmoVerse.Controllers
 
 
         [HttpPost("refresh-token")]
-        public async Task<ActionResult<TokenResponseDto>> RefreshToken([FromBody] RefreshTokenRequestDto request)
+        public async Task<ActionResult<TokenResponseDto>> RefreshToken()
         {
-            request.RefreshToken = Uri.UnescapeDataString(request.RefreshToken);
+            var refreshToken = Request.Cookies["RefreshToken"];
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                return Unauthorized("Invalid refresh token.");
+            }
+
+            var request = new RefreshTokenRequestDto
+            {
+                RefreshToken = refreshToken
+            };
+
             var tokenResponse = await _authService.RefreshTokensAsync(request);
             if (tokenResponse is null || tokenResponse.AccessToken is null || tokenResponse.RefreshToken is null)
+            {
                 return BadRequest("Invalid refresh token.");
+            }
 
             setTokenInCookies(tokenResponse.AccessToken, tokenResponse.RefreshToken);
 
@@ -139,12 +151,6 @@ namespace CosmoVerse.Controllers
         {
             try
             {
-                // Validate the email
-                //if (string.IsNullOrWhiteSpace(toEmail))
-                //{
-                //    return BadRequest(new { message = "Invalid email address." });
-                //}
-
                 var user = await _userService.GetUserFromCookieAsync();
 
                 if (user is null)
@@ -260,7 +266,7 @@ namespace CosmoVerse.Controllers
                 HttpOnly = true, // Prevents JavaScript access to the cookie
                 Secure = true,   // Ensures the cookie is sent over HTTPS
                 SameSite = SameSiteMode.Strict, // Prevent CSRF
-                Expires = DateTime.UtcNow.AddMinutes(30) // Set cookie expiration
+                Expires = DateTime.UtcNow.AddMinutes(1) // Cookie expiration
             };
 
             // Save AccessToken in cookies
@@ -272,7 +278,7 @@ namespace CosmoVerse.Controllers
                 HttpOnly = true, // Prevents JavaScript access to the cookie
                 Secure = true,   // Ensures the cookie is sent over HTTPS
                 SameSite = SameSiteMode.Strict, // Prevent CSRF
-                Expires = DateTime.UtcNow.AddDays(30) // Longer expiration for RefreshToken
+                Expires = DateTime.UtcNow.AddDays(30) // Expiration for RefreshToken
             };
 
             Response.Cookies.Append("RefreshToken", RefreshToken, refreshTokenOptions);
