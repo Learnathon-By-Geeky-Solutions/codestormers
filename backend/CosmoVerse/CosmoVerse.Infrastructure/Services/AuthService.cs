@@ -229,7 +229,7 @@ namespace CosmoVerse.Services
                 issuer: _configuration["AppSettings:Issuer"],
                 audience: _configuration["AppSettings:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(1),
+                expires: DateTime.UtcNow.AddMinutes(30),
                 signingCredentials: creds
             );
             return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);

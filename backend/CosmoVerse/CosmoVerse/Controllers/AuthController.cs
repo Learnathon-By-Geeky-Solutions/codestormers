@@ -266,7 +266,7 @@ namespace CosmoVerse.Controllers
                 HttpOnly = true, // Prevents JavaScript access to the cookie
                 Secure = true,   // Ensures the cookie is sent over HTTPS
                 SameSite = SameSiteMode.Strict, // Prevent CSRF
-                Expires = DateTime.UtcNow.AddMinutes(1) // Cookie expiration
+                Expires = DateTime.UtcNow.AddMinutes(30) // Cookie expiration
             };
 
             // Save AccessToken in cookies
