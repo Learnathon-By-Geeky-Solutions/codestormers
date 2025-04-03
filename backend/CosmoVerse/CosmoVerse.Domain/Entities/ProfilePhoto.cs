@@ -11,10 +11,9 @@ namespace CosmoVerse.Domain.Entities
     public class ProfilePhoto
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         [Required]
         public string Url { get; set; } = string.Empty;
-        [Required]
         public Guid UserId { get; set; }
         public virtual User User { get; set; } = null!;
         public DateTime CreatedAt { get; set; }

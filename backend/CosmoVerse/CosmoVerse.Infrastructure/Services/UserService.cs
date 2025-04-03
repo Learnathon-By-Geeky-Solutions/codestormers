@@ -15,6 +15,11 @@ namespace CosmoVerse.Infrastructure.Services
             _userRepository = userRepository;
             _httpContextAccessor = httpContextAccessor;
         }
+
+        /// <summary>
+        /// Get user from cookie
+        /// </summary>
+        /// <returns>User</returns>
         public async Task<User> GetUserFromCookieAsync()
         {
             var httpContext = _httpContextAccessor.HttpContext;

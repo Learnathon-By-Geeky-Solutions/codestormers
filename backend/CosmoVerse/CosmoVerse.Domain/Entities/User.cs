@@ -24,9 +24,6 @@ namespace CosmoVerse.Models.Domain
         [DataType(DataType.DateTime)]
         public DateTime? RefreshTokenExpiryTime { get; set; }
 
-        // Profile picture
-        public virtual ProfilePhoto? ProfilePhoto { get; set; } = null!;
-
         // Timestamps for account tracking
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
@@ -36,5 +33,8 @@ namespace CosmoVerse.Models.Domain
 
         // Navigation property
         public virtual PasswordReset PasswordReset { get; set; }
+
+        // Profile picture
+        public virtual ProfilePhoto ProfilePhoto { get; set; } = null!;
     }
 }

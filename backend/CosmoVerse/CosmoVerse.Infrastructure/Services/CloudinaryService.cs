@@ -30,7 +30,6 @@ namespace CosmoVerse.Infrastructure.Services
             var uploadParams = new ImageUploadParams()
             {
                 File = new FileDescription(fileName, fileStream),
-                Transformation = new Transformation().Width(500).Height(500).Crop("fill")
             };
 
             var uploadResult = await _cloudinary.UploadAsync(uploadParams);
@@ -42,6 +41,18 @@ namespace CosmoVerse.Infrastructure.Services
                 CreatedAt = DateTime.UtcNow
             };
             return imageInfo;
+        }
+
+        /// <summary>
+        /// Deletes an image from Cloudinary using its public ID.
+        /// </summary>
+        /// <param name="publicId">public id</param>
+        /// <returns></returns>
+        public async Task<bool> DeleteImageAsync(string publicId)
+        {
+            var deleteParams = new DeletionParams(publicId);
+            var deletionResult = await _cloudinary.DestroyAsync(deleteParams);
+            return deletionResult.Result == "ok";
         }
     }
 }

@@ -21,12 +21,12 @@ namespace CosmoVerse.Services
         private readonly IConfiguration _configuration;
         private readonly IRepository<User, Guid> _repository;
         private readonly IRepository<PasswordReset, Guid> _passwordResetRepository;
-        private readonly IRepository<ProfilePhoto, int> _profilePhotoRepository;
+        private readonly IRepository<ProfilePhoto, Guid> _profilePhotoRepository;
         private readonly ICloudinaryService _cloudinaryService;
 
 
         // Injecting IConfiguration and IRepository<User> into the constructor
-        public AuthService(IConfiguration _configuration, IRepository<User, Guid> _repository, IRepository<PasswordReset, Guid> _passwordResetRepository, ICloudinaryService cloudinaryService, IRepository<ProfilePhoto, int> profilePhotoRepository)
+        public AuthService(IConfiguration _configuration, IRepository<User, Guid> _repository, IRepository<PasswordReset, Guid> _passwordResetRepository, ICloudinaryService cloudinaryService, IRepository<ProfilePhoto, Guid> profilePhotoRepository)
         {
             this._configuration = _configuration;
             this._repository = _repository;
@@ -34,7 +34,6 @@ namespace CosmoVerse.Services
             _profilePhotoRepository = profilePhotoRepository;
             _cloudinaryService = cloudinaryService;
         }
-
 
         /// <summary>
         /// Handles the login process, authenticating the user with their email and password,
@@ -57,7 +56,6 @@ namespace CosmoVerse.Services
             // Return a token response if the user is authenticated
             return AuthResult.SuccessResult(await CreateTokenResponse(user));
         }
-
 
         /// <summary>  
         /// Handle registration of a new user, creating a new user record in the database.
@@ -93,21 +91,30 @@ namespace CosmoVerse.Services
             user.CreatedAt = DateTime.UtcNow;
             user.UpdatedAt = DateTime.UtcNow;
 
-            var imageInfo = request.ProfilePicture != null ? await uploadPhoto(file: request.ProfilePicture) : null;
-
-            var profilePhoto = new ProfilePhoto
-            {
-                Url = imageInfo?.ImageUrl,
-                PublicId = imageInfo?.PublicId,
-                CreatedAt = imageInfo?.CreatedAt ?? DateTime.UtcNow,
-                UserId = user.Id
-            };
-
-            // Add the profile photo to the database
-            await _profilePhotoRepository.AddAsync(profilePhoto);
 
             // Add the user to the database
             await _repository.AddAsync(user);
+
+            if (request.ProfilePicture is not null && request.ProfilePicture.Length > 0)
+            {
+                var imageInfo = await uploadPhoto(request.ProfilePicture);
+
+                if (imageInfo is not null)
+                {
+                    var profilePhoto = new ProfilePhoto
+                    {
+                        Id = Guid.NewGuid(),
+                        Url = imageInfo?.ImageUrl,
+                        PublicId = imageInfo?.PublicId,
+                        CreatedAt = imageInfo?.CreatedAt ?? DateTime.UtcNow,
+                        UserId = user.Id,
+                        User = user
+                    };
+
+                    // Add the profile photo to the database
+                    await _profilePhotoRepository.AddAsync(profilePhoto);
+                }
+            }
 
             // Return the newly created user record
             return user;
@@ -122,10 +129,44 @@ namespace CosmoVerse.Services
         /// <exception cref="InvalidOperationException"></exception>
         public async Task<bool> UpdateUser(User user, UpdateProfileDto request)
         {
-            user.Name = request.Name;
-            //user.ProfilePictureUrl = request.ProfilePictureUrl;
+            if(request.Name is not null)
+            {
+                user.Name = request.Name;
+            }
+            else
+            {
+                user.Name = user.Name;
+            }
+
             try
             {
+                // Check if a new profile picture is provided
+                if (request.ProfilePicture is not null && request.ProfilePicture.Length > 0)
+                {
+                    if(user.ProfilePhoto is not null)
+                    {
+                        await DeletePhoto(user.ProfilePhoto.PublicId);
+                        await _profilePhotoRepository.DeleteAsync(user.ProfilePhoto);
+                    }
+
+                    var imageInfo = await uploadPhoto(request.ProfilePicture);
+                    if (imageInfo is not null)
+                    {
+                        var profilePhoto = new ProfilePhoto
+                        {
+                            Id = Guid.NewGuid(),
+                            Url = imageInfo?.ImageUrl,
+                            PublicId = imageInfo?.PublicId,
+                            CreatedAt = imageInfo?.CreatedAt ?? DateTime.UtcNow,
+                            UserId = user.Id,
+                            User = user
+                        };
+
+                        // Add the profile photo to the database
+                        await _profilePhotoRepository.AddAsync(profilePhoto);
+                    }
+                }
+
                 await _repository.UpdateAsync(user);
             }
             catch (Exception ex)
@@ -155,7 +196,6 @@ namespace CosmoVerse.Services
             return await CreateTokenResponse(user);
         }
 
-
         /// <summary>
         /// Validates the refresh token for a given user.
         /// </summary>
@@ -177,7 +217,6 @@ namespace CosmoVerse.Services
             return user;
         }
 
-
         /// <summary>
         /// Generates a new token response for a given user.
         /// </summary>
@@ -191,7 +230,6 @@ namespace CosmoVerse.Services
                 RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
             };
         }
-
 
         /// <summary>
         /// Generates a new refresh token for a given user and saves it to the database.
@@ -212,7 +250,6 @@ namespace CosmoVerse.Services
             return refreshToken;
         }
 
-
         /// <summary>
         /// Generates a new refresh token.
         /// </summary>
@@ -224,7 +261,6 @@ namespace CosmoVerse.Services
             rng.GetBytes(randomNumber);
             return Convert.ToBase64String(randomNumber);
         }
-
 
         /// <summary>
         /// Creates a new JWT token for a given user.
@@ -265,7 +301,7 @@ namespace CosmoVerse.Services
         /// <returns>User information</returns>
         public async Task<UserInfoDto?> GetUserAsync(Guid Id)
         {
-            var user = await _repository.FindByIdAsync(Id);
+            var user = await _repository.FindAsync(u => u.Id == Id, u => u.ProfilePhoto);
             if (user is null)
             {
                 return null;
@@ -276,7 +312,7 @@ namespace CosmoVerse.Services
                 Name = user.Name,
                 Email = user.Email,
                 IsEmailVerified = user.IsEmailVerified,
-                //ProfilePictureUrl = user.ProfilePictureUrl
+                ProfilePictureUrl = user.ProfilePhoto?.Url ?? ""
             };
             return userInfo;
         }
@@ -343,6 +379,21 @@ namespace CosmoVerse.Services
                 return imgInfo;
             }
             return null;
+        }
+
+        /// <summary>
+        /// Deletes a photo from Cloudinary using the public ID.
+        /// </summary>
+        /// <param name="publicId">Public id of the image</param>
+        /// <returns></returns>
+        private async Task<bool> DeletePhoto(string publicId)
+        {
+            if (publicId != null)
+            {
+                await _cloudinaryService.DeleteImageAsync(publicId);
+                return true;
+            }
+            return false;
         }
     }
 }
