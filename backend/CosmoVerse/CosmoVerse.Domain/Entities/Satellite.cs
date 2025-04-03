@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace CosmoVerse.Models.Domain
@@ -15,10 +14,10 @@ namespace CosmoVerse.Models.Domain
         [Required(ErrorMessage = "Mass is required")]
         public double Mass { get; set; }
 
-        public double DistanceFromPlanet { get; set; } // Distance in km
+        public double DistanceFromPlanet { get; set; } 
 
-        public Guid PlanetId { get; set; } // Foreign Key
-        public virtual Planet Planet { get; set; } // Navigation Property
+        public Guid PlanetId { get; set; } 
+        public virtual Planet Planet { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace CosmoVerse.Models.Domain
@@ -14,15 +12,12 @@ namespace CosmoVerse.Models.Domain
         public string Name { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Mass is required")]
-        public double Mass { get; set; } // Mass in kg
+        public double Mass { get; set; }
 
         [Required(ErrorMessage = "Radius is required")]
-        public double Radius { get; set; } // Radius in km
+        public double Radius { get; set; }
 
-        public int OrbitalPeriod { get; set; } // In days
-
-        public Guid StarId { get; set; } // Foreign Key
-        public virtual Star Star { get; set; } // Navigation Property
+        public int OrbitalPeriod { get; set; }
 
         public virtual List<Satellite> Satellites { get; set; } = new List<Satellite>();
 
