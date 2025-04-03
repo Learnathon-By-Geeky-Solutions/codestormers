@@ -1,4 +1,5 @@
-﻿using CosmoVerse.Models.Domain;
+﻿using CosmoVerse.Domain.Entities;
+using CosmoVerse.Models.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace CosmoVerse.Data
@@ -32,6 +33,13 @@ namespace CosmoVerse.Data
                 .HasOne(u => u.PasswordReset)
                 .WithOne(pr => pr.User)
                 .HasForeignKey<PasswordReset>(pr => pr.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure one-to-one relationship between User and ProfilePhoto
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.ProfilePhoto)
+                .WithOne(p => p.User)
+                .HasForeignKey<ProfilePhoto>(p => p.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

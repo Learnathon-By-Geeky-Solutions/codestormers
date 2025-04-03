@@ -1,7 +1,11 @@
-﻿using CosmoVerse.Models.Domain;
+﻿using CosmoVerse.Application.DTOs;
+using CosmoVerse.Domain.Entities;
+using CosmoVerse.Infrastructure.Services;
+using CosmoVerse.Models.Domain;
 using CosmoVerse.Models.Dto;
 using CosmoVerse.Repositories;
 using CosmoVerse.Services.Results;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -17,14 +21,18 @@ namespace CosmoVerse.Services
         private readonly IConfiguration _configuration;
         private readonly IRepository<User, Guid> _repository;
         private readonly IRepository<PasswordReset, Guid> _passwordResetRepository;
+        private readonly IRepository<ProfilePhoto, int> _profilePhotoRepository;
+        private readonly ICloudinaryService _cloudinaryService;
 
 
         // Injecting IConfiguration and IRepository<User> into the constructor
-        public AuthService(IConfiguration _configuration, IRepository<User, Guid> _repository, IRepository<PasswordReset, Guid> _passwordResetRepository)
+        public AuthService(IConfiguration _configuration, IRepository<User, Guid> _repository, IRepository<PasswordReset, Guid> _passwordResetRepository, ICloudinaryService cloudinaryService, IRepository<ProfilePhoto, int> profilePhotoRepository)
         {
             this._configuration = _configuration;
             this._repository = _repository;
             this._passwordResetRepository = _passwordResetRepository;
+            _profilePhotoRepository = profilePhotoRepository;
+            _cloudinaryService = cloudinaryService;
         }
 
 
@@ -68,7 +76,7 @@ namespace CosmoVerse.Services
             {
                 throw new InvalidOperationException("An error occurred while checking the email.", ex);
             }
-            if(existingEmail)
+            if (existingEmail)
             {
                 throw new InvalidOperationException("Email already exists");
             }
@@ -85,6 +93,19 @@ namespace CosmoVerse.Services
             user.CreatedAt = DateTime.UtcNow;
             user.UpdatedAt = DateTime.UtcNow;
 
+            var imageInfo = request.ProfilePicture != null ? await uploadPhoto(file: request.ProfilePicture) : null;
+
+            var profilePhoto = new ProfilePhoto
+            {
+                Url = imageInfo?.ImageUrl,
+                PublicId = imageInfo?.PublicId,
+                CreatedAt = imageInfo?.CreatedAt ?? DateTime.UtcNow,
+                UserId = user.Id
+            };
+
+            // Add the profile photo to the database
+            await _profilePhotoRepository.AddAsync(profilePhoto);
+
             // Add the user to the database
             await _repository.AddAsync(user);
 
@@ -92,12 +113,17 @@ namespace CosmoVerse.Services
             return user;
         }
 
-
-
+        /// <summary>
+        /// Updates the user's profile information, including name and profile picture.
+        /// </summary>
+        /// <param name="user">User data</param>
+        /// <param name="request">New Update user data</param>
+        /// <returns>True if updated successfully</returns>
+        /// <exception cref="InvalidOperationException"></exception>
         public async Task<bool> UpdateUser(User user, UpdateProfileDto request)
         {
             user.Name = request.Name;
-            user.ProfilePictureUrl = request.ProfilePictureUrl;
+            //user.ProfilePictureUrl = request.ProfilePictureUrl;
             try
             {
                 await _repository.UpdateAsync(user);
@@ -108,10 +134,6 @@ namespace CosmoVerse.Services
             }
             return true;
         }
-
-
-
-
 
         /// <summary>
         /// Refreshes the user's access token using a valid refresh token.
@@ -254,7 +276,7 @@ namespace CosmoVerse.Services
                 Name = user.Name,
                 Email = user.Email,
                 IsEmailVerified = user.IsEmailVerified,
-                ProfilePictureUrl = user.ProfilePictureUrl
+                //ProfilePictureUrl = user.ProfilePictureUrl
             };
             return userInfo;
         }
@@ -305,6 +327,22 @@ namespace CosmoVerse.Services
             {
                 throw new InvalidOperationException("An error occurred while resetting the password.", ex);
             }
+        }
+
+        /// <summary>
+        /// Uploads a photo to Cloudinary and returns the image information.
+        /// </summary>
+        /// <param name="file">Image file</param>
+        /// <returns>Image info</returns>
+        private async Task<ImageDto> uploadPhoto(IFormFile file)
+        {
+            if (file.Length > 0)
+            {
+                using var stream = file.OpenReadStream();
+                var imgInfo = await _cloudinaryService.UploadImageAsync(stream, file.FileName);
+                return imgInfo;
+            }
+            return null;
         }
     }
 }

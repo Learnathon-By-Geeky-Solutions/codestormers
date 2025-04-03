@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace CosmoVerse.Models.Dto
 {
@@ -13,7 +14,7 @@ namespace CosmoVerse.Models.Dto
         [Required]
         [StringLength(100, MinimumLength = 8)]
         public string Password { get; set; } = string.Empty;
-        [StringLength(2048)]
-        public string ProfilePictureUrl { get; set; } = string.Empty;
+
+        public IFormFile? ProfilePicture { get; set; }
     }
 }

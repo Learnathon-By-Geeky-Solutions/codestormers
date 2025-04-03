@@ -27,7 +27,7 @@ namespace CosmoVerse.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<User>> Register([FromBody] UserDto request)
+        public async Task<ActionResult<User>> Register([FromForm] UserDto request)
         {
             try
             {
