@@ -27,7 +27,7 @@ namespace CosmoVerse.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<User>> Register([FromBody] UserDto request)
+        public async Task<ActionResult<User>> Register([FromForm] UserDto request)
         {
             try
             {
@@ -99,7 +99,7 @@ namespace CosmoVerse.Controllers
 
         [Authorize]
         [HttpPut("update-user")]
-        public async Task<ActionResult> UpdateUser([FromBody] UpdateProfileDto request)
+        public async Task<ActionResult> UpdateUser([FromForm]UpdateProfileDto request)
         {
             var user = await _userService.GetUserFromCookieAsync();
             if (user is null)
