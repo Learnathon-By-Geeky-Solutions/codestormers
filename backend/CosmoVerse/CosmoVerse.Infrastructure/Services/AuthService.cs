@@ -91,6 +91,14 @@ namespace CosmoVerse.Services
             user.CreatedAt = DateTime.UtcNow;
             user.UpdatedAt = DateTime.UtcNow;
 
+            if (request.ProfilePicture is not null && request.ProfilePicture.Length > 0)
+            {
+                var acceptedTypes = new[] { ".jpeg", ".png", ".jpg" };
+                if (!acceptedTypes.Contains(Path.GetExtension(request.ProfilePicture.FileName)))
+                {
+                    throw new InvalidOperationException("Invalid image file type");
+                }
+            }
 
             // Add the user to the database
             await _repository.AddAsync(user);
@@ -136,6 +144,15 @@ namespace CosmoVerse.Services
             else
             {
                 user.Name = user.Name;
+            }
+
+            if (request.ProfilePicture is not null && request.ProfilePicture.Length > 0)
+            {
+                var acceptedTypes = new[] { ".jpeg", ".png", ".jpg" };
+                if (!acceptedTypes.Contains(Path.GetExtension(request.ProfilePicture.FileName)))
+                {
+                    throw new InvalidOperationException("Invalid image file type");
+                }
             }
 
             try
