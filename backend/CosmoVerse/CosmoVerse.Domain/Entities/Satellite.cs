@@ -1,25 +1,29 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace CosmoVerse.Models.Domain
+namespace CosmoVerse.Models
 {
     public class Satellite
     {
         [Key]
         public Guid Id { get; set; }
 
+        public Guid PlanetId { get; set; }
+
         [Required(ErrorMessage = "Satellite name is required")]
         [StringLength(100)]
-        public string Name { get; set; } = string.Empty;
+        public required string Name { get; set; }
 
-        [Required(ErrorMessage = "Mass is required")]
-        public double Mass { get; set; }
+        public double Size { get; set; }
+        public double DistanceFromPlanet { get; set; }
+        public double OrbitalPeriod { get; set; }
 
-        public double DistanceFromPlanet { get; set; } 
+        public required Dictionary<string, string> Description { get; set; }
 
-        public Guid PlanetId { get; set; } 
-        public virtual Planet Planet { get; set; }
+        public required string MediaUrl { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+
+        public virtual required Planet Planet { get; set; }
     }
 }

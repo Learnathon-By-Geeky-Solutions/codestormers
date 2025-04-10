@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace CosmoVerse.Models.Domain
+namespace CosmoVerse.Models
 {
     public class Planet
     {
@@ -9,19 +9,20 @@ namespace CosmoVerse.Models.Domain
 
         [Required(ErrorMessage = "Planet name is required")]
         [StringLength(100)]
-        public string Name { get; set; } = string.Empty;
+        public required string Name { get; set; }
 
-        [Required(ErrorMessage = "Mass is required")]
-        public double Mass { get; set; }
+        public double DistanceFromSun { get; set; }
+        public double Diameter { get; set; }
+        public double RotationPeriod { get; set; }
+        public double OrbitalPeriod { get; set; }
 
-        [Required(ErrorMessage = "Radius is required")]
-        public double Radius { get; set; }
+        public required Dictionary<string, string> Description { get; set; }
 
-        public int OrbitalPeriod { get; set; }
+        public required string MediaUrl { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
 
         public virtual List<Satellite> Satellites { get; set; } = new List<Satellite>();
-
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
 }

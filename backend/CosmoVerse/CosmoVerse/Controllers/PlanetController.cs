@@ -1,103 +1,35 @@
-using CosmoVerse.Models.Domain;
-using CosmoVerse.Services;
+using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using CosmoVerse.Models;
+using CosmoVerse.Services;
 
 namespace CosmoVerse.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class PlanetController : ControllerBase
     {
         private readonly IPlanetService _planetService;
 
         public PlanetController(IPlanetService planetService)
         {
-            _planetService = planetService ?? throw new ArgumentNullException(nameof(planetService));
+            _planetService = planetService;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Planet>>> GetPlanets([FromQuery] bool includeSatellites = false)
+        [HttpGet("summaries")]
+        public async Task<IActionResult> GetPlanetSummaries()
         {
-            try
-            {
-                var planets = await _planetService.GetAllPlanetsAsync(includeSatellites);
-                return Ok(planets);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "An error occurred while retrieving planets.");
-            }
+            var summaries = await _planetService.GetPlanetSummariesAsync();
+            return Ok(summaries);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Planet>> GetPlanet(Guid id)
+        public async Task<ActionResult<Planet>> GetPlanet(Guid id, [FromQuery] bool includeSatellites = false)
         {
-            try
-            {
-                var planet = await _planetService.GetPlanetByIdAsync(id);
-                if (planet == null)
-                    return NotFound("Planet not found");
-
-                return Ok(planet);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "An error occurred while retrieving the planet.");
-            }
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<Planet>> CreatePlanet([FromBody] Planet planet)
-        {
-            if (planet == null || !ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            try
-            {
-                var createdPlanet = await _planetService.CreatePlanetAsync(planet);
-                return CreatedAtAction(nameof(GetPlanet), new { id = createdPlanet.Id }, createdPlanet);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "An error occurred while creating the planet.");
-            }
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePlanet(Guid id, [FromBody] Planet updatedPlanet)
-        {
-            if (updatedPlanet == null || id != updatedPlanet.Id || !ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            try
-            {
-                var success = await _planetService.UpdatePlanetAsync(id, updatedPlanet);
-                if (!success)
-                    return NotFound("Planet not found");
-
-                return NoContent();
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "An error occurred while updating the planet.");
-            }
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletePlanet(Guid id)
-        {
-            try
-            {
-                var success = await _planetService.DeletePlanetAsync(id);
-                if (!success)
-                    return NotFound("Planet not found");
-
-                return NoContent();
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "An error occurred while deleting the planet.");
-            }
+            var planet = await _planetService.GetPlanetByIdAsync(id, includeSatellites);
+            if (planet == null) return NotFound();
+            return Ok(planet);
         }
     }
 }
