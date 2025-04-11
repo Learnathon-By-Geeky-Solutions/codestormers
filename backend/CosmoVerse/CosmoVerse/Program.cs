@@ -17,10 +17,12 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 builder.Services.AddDbContext<UserDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DatabaseConnectionString"),
         b => b.MigrationsAssembly("CosmoVerse.Infrastructure")).UseLazyLoadingProxies());
+
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
     options.TokenValidationParameters = new TokenValidationParameters
