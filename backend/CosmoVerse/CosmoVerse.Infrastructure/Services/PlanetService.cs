@@ -1,96 +1,101 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CosmoVerse.Application.DTOs;
+using CosmoVerse.Application.Services;
 using CosmoVerse.Data;
 using CosmoVerse.Models;
-using Microsoft.EntityFrameworkCore;
-using CosmoVerse.Models.Domain;
 using CosmoVerse.Repositories;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace CosmoVerse.Services
+namespace CosmoVerse.Infrastructure.Services
 {
-    public class PlanetService : IPlanetService
+    internal class PlanetService : IPlanetService
     {
-        private readonly ApplicationDbContext _context;
-
-        public PlanetService(ApplicationDbContext context)
+        private readonly IRepository<Planet, Guid> _planetRepository;
+        public PlanetService(IRepository<Planet, Guid> planetRepository)
         {
-            _context = context;
+            _planetRepository = planetRepository;
         }
 
-        public async Task<List<PlanetSummary>> GetPlanetSummariesAsync()
+        public async Task<bool> CreatePlanetAsync(PlanetDto request)
         {
-            return await _context.Planets
-                .Select(p => new PlanetSummary
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    DistanceFromSun = p.DistanceFromSun,
-                    Diameter = p.Diameter,
-                    RotationPeriod = p.RotationPeriod,
-                    OrbitalPeriod = p.OrbitalPeriod,
-                    MediaUrl = p.MediaUrl
-                })
-                .ToListAsync();
-        }
-
-        public async Task<Planet?> GetPlanetByIdAsync(Guid id, bool includeSatellites = false)
-        {
-            var query = _context.Planets.AsQueryable()
-                .Where(p => p.Id == id);
-
-            if (includeSatellites)
+            // 1. Map the PlanetDto to Planet entity  
+            var planet = new Planet
             {
-                query = query.Include(p => p.Satellites);
+                Introduction = request.Introduction,
+                Namesake = request.Namesake,
+                PotentialForLife = request.PotentialForLife,
+                SizeAndDistance = request.SizeAndDistance,
+                OrbitAndRotation = request.OrbitAndRotation,
+                Moons = request.Moons,
+                Rings = request.Rings,
+                Formation = request.Formation,
+                Structure = request.Structure,
+                Surface = request.Surface,
+                Atmosphere = request.Atmosphere,
+                Magnetosphere = request.Magnetosphere
+            };
+
+            // 2. Add the Planet entity to the database using the repository  
+            await _planetRepository.AddAsync(planet);
+
+            // 3. Return a Task<bool> instead of a plain bool  
+            return await Task.FromResult(true);
+        }
+
+        public async Task<bool> DeletePlanetAsync(Guid planetId)
+        {
+            var planet = await _planetRepository.FindByIdAsync(planetId);
+            if (planet == null)
+            {
+                return false; 
             }
 
-            return await query.FirstOrDefaultAsync();
+            await _planetRepository.DeleteAsync(planet);
+            await _planetRepository.SaveChangesAsync();
+            return true;
+        } 
+
+        public async Task<List<Planet>> GetAllPlanetsAsync()
+        {
+            var planets = await _planetRepository.GetAllAsync();
+            return planets.ToList();
         }
 
-        public async Task<Planet> CreatePlanetAsync(Planet planet)
+        public async Task<Planet> GetPlanetByIdAsync(Guid planetId)
         {
-            if (planet == null) throw new ArgumentNullException(nameof(planet));
-            if (string.IsNullOrEmpty(planet.Name)) throw new ArgumentException("Planet name is required", nameof(planet.Name));
-            if (planet.Name.Length > 100) throw new ArgumentException("Planet name cannot exceed 100 characters", nameof(planet.Name));
+            var planet = await _planetRepository.FindAsync(
+            p => p.Id == planetId,
+            p => p.Satellites);
 
-            planet.Id = Guid.NewGuid();
-            planet.CreatedAt = DateTime.UtcNow;
-            planet.UpdatedAt = DateTime.UtcNow;
-
-            _context.Planets.Add(planet);
-            await _context.SaveChangesAsync();
             return planet;
         }
 
-        public async Task<bool> UpdatePlanetAsync(Planet planet)
+        public async Task<bool> UpdatePlanetAsync(Guid Id, PlanetDto planetDto)
         {
-            if (planet == null || string.IsNullOrEmpty(planet.Name) || planet.Name.Length > 100) return false;
+            var planet = await _planetRepository.FindByIdAsync(Id);
+            if (planet == null)
+            {
+                return false; // Planet not found
+            }
 
-            var existingPlanet = await _context.Planets.FindAsync(planet.Id);
-            if (existingPlanet == null) return false;
+            // Update the planet's properties
+            planet.Introduction = planetDto.Introduction;
+            planet.Namesake = planetDto.Namesake;
+            planet.PotentialForLife = planetDto.PotentialForLife;
+            planet.SizeAndDistance = planetDto.SizeAndDistance;
+            planet.OrbitAndRotation = planetDto.OrbitAndRotation;
+            planet.Moons = planetDto.Moons;
+            planet.Rings = planetDto.Rings;
+            planet.Formation = planetDto.Formation;
+            planet.Structure = planetDto.Structure;
+            planet.Surface = planetDto.Surface;
+            planet.Atmosphere = planetDto.Atmosphere;
+            planet.Magnetosphere = planetDto.Magnetosphere;
 
-            existingPlanet.Name = planet.Name;
-            existingPlanet.DistanceFromSun = planet.DistanceFromSun;
-            existingPlanet.Diameter = planet.Diameter;
-            existingPlanet.RotationPeriod = planet.RotationPeriod;
-            existingPlanet.OrbitalPeriod = planet.OrbitalPeriod;
-            existingPlanet.Description = planet.Description;
-            existingPlanet.MediaUrl = planet.MediaUrl;
-            existingPlanet.UpdatedAt = DateTime.UtcNow;
-
-            _context.Planets.Update(existingPlanet);
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<bool> DeletePlanetAsync(Guid id)
-        {
-            var planet = await _context.Planets.FindAsync(id);
-            if (planet == null) return false;
-
-            _context.Planets.Remove(planet);
-            await _context.SaveChangesAsync();
+            await _planetRepository.UpdateAsync(planet);
             return true;
         }
     }

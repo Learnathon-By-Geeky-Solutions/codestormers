@@ -1,16 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using CosmoVerse.Application.DTOs;
 using CosmoVerse.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace CosmoVerse.Services
+namespace CosmoVerse.Application.Services
 {
     public interface IPlanetService
     {
-        Task<List<PlanetSummary>> GetPlanetSummariesAsync();
-        Task<Planet?> GetPlanetByIdAsync(Guid id, bool includeSatellites = false);
-        Task<Planet> CreatePlanetAsync(Planet planet);
-        Task<bool> UpdatePlanetAsync(Planet planet);
-        Task<bool> DeletePlanetAsync(Guid id);
+        Task<bool> CreatePlanetAsync(PlanetDto request);
+        Task<bool> UpdatePlanetAsync(Guid Id, PlanetDto planetDto);
+        Task<bool> DeletePlanetAsync(Guid planetId);
+        Task<Planet> GetPlanetByIdAsync(Guid planetId);
+        Task<List<Planet>> GetAllPlanetsAsync();
     }
 }

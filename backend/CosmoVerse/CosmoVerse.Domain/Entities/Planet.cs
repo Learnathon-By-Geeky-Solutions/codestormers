@@ -7,21 +7,18 @@ namespace CosmoVerse.Models
         [Key]
         public Guid Id { get; set; }
 
-        [Required(ErrorMessage = "Planet name is required")]
-        [StringLength(100)]
-        public required string Name { get; set; }
-
-        public double DistanceFromSun { get; set; }
-        public double Diameter { get; set; }
-        public double RotationPeriod { get; set; }
-        public double OrbitalPeriod { get; set; }
-
-        public required Dictionary<string, string> Description { get; set; }
-
-        public required string MediaUrl { get; set; }
-
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        public string Introduction { get; set; } = string.Empty;
+        public string Namesake { get; set; } = string.Empty;
+        public string PotentialForLife { get; set; } = string.Empty;
+        public string SizeAndDistance { get; set; } = string.Empty;
+        public string OrbitAndRotation { get; set; } = string.Empty;
+        public string Moons { get; set; } = string.Empty;
+        public string Rings { get; set; } = string.Empty;
+        public string Formation { get; set; } = string.Empty;
+        public string Structure { get; set; } = string.Empty;
+        public string Surface { get; set; } = string.Empty;
+        public string Atmosphere { get; set; } = string.Empty;
+        public string Magnetosphere { get; set; } = string.Empty;
 
         public virtual List<Satellite> Satellites { get; set; } = new List<Satellite>();
     }
