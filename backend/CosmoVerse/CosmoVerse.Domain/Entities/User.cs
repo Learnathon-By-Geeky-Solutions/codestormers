@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CosmoVerse.Domain.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace CosmoVerse.Models.Domain
 {
@@ -22,8 +23,6 @@ namespace CosmoVerse.Models.Domain
 
         [DataType(DataType.DateTime)]
         public DateTime? RefreshTokenExpiryTime { get; set; }
-        [StringLength(500)]
-        public string ProfilePictureUrl { get; set; } = string.Empty;
 
         // Timestamps for account tracking
         public DateTime CreatedAt { get; set; }
@@ -34,5 +33,8 @@ namespace CosmoVerse.Models.Domain
 
         // Navigation property
         public virtual PasswordReset PasswordReset { get; set; }
+
+        // Profile picture
+        public virtual ProfilePhoto ProfilePhoto { get; set; } = null!;
     }
 }

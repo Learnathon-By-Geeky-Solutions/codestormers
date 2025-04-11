@@ -15,6 +15,7 @@ namespace CosmoVerse.Infrastructure
             service.AddTransient<IEmailService, EmailService>();
             service.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
             service.AddScoped<IUserService, UserService>();
+            service.AddScoped<ICloudinaryService, CloudinaryService>();
             return service;
         }
     }

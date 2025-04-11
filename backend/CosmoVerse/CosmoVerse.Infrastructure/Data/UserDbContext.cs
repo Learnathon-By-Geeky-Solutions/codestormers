@@ -1,4 +1,5 @@
 ﻿using CosmoVerse.Models;
+﻿using CosmoVerse.Domain.Entities;
 using CosmoVerse.Models.Domain;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,11 +38,18 @@ namespace CosmoVerse.Data
                 .HasForeignKey<PasswordReset>(pr => pr.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+
             // Configure one-to-many relationship between Planet and Satellite
             modelBuilder.Entity<Planet>()
                 .HasMany(p => p.Satellites)
                 .WithOne(s => s.Planet)
                 .HasForeignKey(s => s.PlanetId)
+
+            // Configure one-to-one relationship between User and ProfilePhoto
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.ProfilePhoto)
+                .WithOne(p => p.User)
+                .HasForeignKey<ProfilePhoto>(p => p.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }
