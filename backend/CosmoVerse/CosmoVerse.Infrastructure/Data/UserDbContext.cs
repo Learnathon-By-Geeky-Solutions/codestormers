@@ -1,3 +1,4 @@
+﻿using CosmoVerse.Models;
 ﻿using CosmoVerse.Domain.Entities;
 using CosmoVerse.Models.Domain;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,8 @@ namespace CosmoVerse.Data
         public DbSet<EmailVerification> EmailVerifications { get; set; }
         public DbSet<PasswordReset> PasswordResets { get; set; }
 
+        public DbSet<Planet> Planets { get; set; }
+        public DbSet<Satellite> Satellites { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -40,6 +43,20 @@ namespace CosmoVerse.Data
                 .HasOne(u => u.ProfilePhoto)
                 .WithOne(p => p.User)
                 .HasForeignKey<ProfilePhoto>(p => p.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure one-to-many relationship between Planet and Satellite
+            modelBuilder.Entity<Planet>()
+                .HasMany(p => p.Satellites)
+                .WithOne(s => s.Planet)
+                .HasForeignKey(s => s.PlanetId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure one-to-many relationship between CelestialSystem and Planet
+            modelBuilder.Entity<CelestialSystem>()
+                .HasMany(cs => cs.Planets)
+                .WithOne(p => p.CelestialSystem)
+                .HasForeignKey(p => p.CelestialSystemId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }
