@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace CosmoVerse.Infrastructure.Services
 {
-    internal class CloudinaryService : ICloudinaryService
+    public class CloudinaryService : ICloudinaryService
     {
         private readonly Cloudinary _cloudinary;
         public CloudinaryService(IConfiguration _configuration)

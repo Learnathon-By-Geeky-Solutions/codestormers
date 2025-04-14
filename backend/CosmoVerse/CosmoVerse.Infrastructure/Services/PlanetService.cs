@@ -1,5 +1,6 @@
-﻿using CosmoVerse.Application.DTOs;
-using CosmoVerse.Application.Services;
+﻿using Azure.Core;
+using CosmoVerse.Application.DTOs;
+using CosmoVerse.Application.Interfaces;
 using CosmoVerse.Data;
 using CosmoVerse.Models;
 using CosmoVerse.Repositories;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace CosmoVerse.Infrastructure.Services
 {
-    internal class PlanetService : IPlanetService
+    public class PlanetService : IPlanetService
     {
         private readonly IRepository<Planet, Guid> _planetRepository;
         public PlanetService(IRepository<Planet, Guid> planetRepository)
@@ -24,6 +25,7 @@ namespace CosmoVerse.Infrastructure.Services
             // 1. Map the PlanetDto to Planet entity  
             var planet = new Planet
             {
+                Name = request.Name,
                 Introduction = request.Introduction,
                 Namesake = request.Namesake,
                 PotentialForLife = request.PotentialForLife,
@@ -35,14 +37,14 @@ namespace CosmoVerse.Infrastructure.Services
                 Structure = request.Structure,
                 Surface = request.Surface,
                 Atmosphere = request.Atmosphere,
-                Magnetosphere = request.Magnetosphere
+                Magnetosphere = request.Magnetosphere,
+                CelestialSystemId = request.CelestialSystemId
             };
 
             // 2. Add the Planet entity to the database using the repository  
             await _planetRepository.AddAsync(planet);
-
-            // 3. Return a Task<bool> instead of a plain bool  
-            return await Task.FromResult(true);
+ 
+            return true;
         }
 
         public async Task<bool> DeletePlanetAsync(Guid planetId)
@@ -58,19 +60,44 @@ namespace CosmoVerse.Infrastructure.Services
             return true;
         } 
 
-        public async Task<List<Planet>> GetAllPlanetsAsync()
+        public async Task<List<object>> GetAllPlanetsAsync()
         {
-            var planets = await _planetRepository.GetAllAsync();
-            return planets.ToList();
+            var planets = await _planetRepository.FindWithProjectionAsync(
+                predicate: _ => true,
+                selector: planet => new
+                {
+                    planet.Id,
+                    planet.Name
+                }
+                );
+            return planets.Cast<object>().ToList();
         }
 
-        public async Task<Planet> GetPlanetByIdAsync(Guid planetId)
+        public async Task<List<object>> GetPlanetByIdAsync(Guid planetId)
         {
-            var planet = await _planetRepository.FindAsync(
-            p => p.Id == planetId,
-            p => p.Satellites);
+            var planets = await _planetRepository.FindWithProjectionAsync(
+                predicate: planet => planet.Id == planetId,
+                selector: planet => new
+                {
+                    planet.Id,
+                    planet.Name,
+                    planet.Introduction,
+                    planet.Namesake,
+                    planet.PotentialForLife,
+                    planet.SizeAndDistance,
+                    planet.OrbitAndRotation,
+                    planet.Moons,
+                    planet.Rings,
+                    planet.Formation,
+                    planet.Structure,
+                    planet.Surface,
+                    planet.Atmosphere,
+                    planet.Magnetosphere,
 
-            return planet;
+                    Satellites = planet.Satellites.Select(s => new { s.Id, s.Name }).ToList()
+                }
+            );
+            return planets.Cast<object>().ToList();
         }
 
         public async Task<bool> UpdatePlanetAsync(Guid Id, PlanetDto planetDto)
@@ -94,6 +121,8 @@ namespace CosmoVerse.Infrastructure.Services
             planet.Surface = planetDto.Surface;
             planet.Atmosphere = planetDto.Atmosphere;
             planet.Magnetosphere = planetDto.Magnetosphere;
+            planet.CelestialSystemId = planetDto.CelestialSystemId;
+            
 
             await _planetRepository.UpdateAsync(planet);
             return true;

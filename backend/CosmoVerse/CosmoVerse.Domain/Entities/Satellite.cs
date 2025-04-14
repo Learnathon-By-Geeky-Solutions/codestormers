@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace CosmoVerse.Models
 {
@@ -10,7 +11,7 @@ namespace CosmoVerse.Models
 
         [Required(ErrorMessage = "Satellite name is required")]
         [StringLength(256)]
-        public required string Name { get; set; }
+        public  string Name { get; set; } = string.Empty;
 
         public double Size { get; set; }
         public double DistanceFromPlanet { get; set; }
@@ -21,6 +22,7 @@ namespace CosmoVerse.Models
         public DateTime UpdatedAt { get; set; }
 
         public Guid PlanetId { get; set; }
-        public virtual required Planet Planet { get; set; }
+        [JsonIgnore]
+        public virtual Planet Planet { get; set; }
     }
 }

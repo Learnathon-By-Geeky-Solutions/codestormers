@@ -383,6 +383,46 @@ namespace CosmoVerse.Services
         }
 
         /// <summary>
+        /// Deletes a user by Id
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns>True if user is deleted</returns>
+        public async Task<bool> DeleteUserAsync(Guid userId)
+        {
+            var user = await _repository.FindAsync(u => u.Id == userId);
+            if (user is null)
+            {
+                return false;
+            }
+            if (user.ProfilePhoto is not null)
+            {
+                await DeletePhoto(user.ProfilePhoto.PublicId);
+                await _profilePhotoRepository.DeleteAsync(user.ProfilePhoto);
+            }
+            await _repository.DeleteAsync(user);
+            return true;
+        }
+
+        /// <summary>
+        /// Get all users
+        /// </summary>
+        /// <returns> All user list </returns>
+        public async Task<List<object>> GetAllUsersAsync()
+        {
+            var users = await _repository.FindWithProjectionAsync(
+                predicate: u => true,
+                selector: u => new
+                {
+                    u.Id,
+                    u.Name,
+                    u.Email,
+                    u.IsEmailVerified,
+                    ProfilePictureUrl = u.ProfilePhoto.Url
+                });
+            return users.Cast<object>().ToList();
+        }
+
+        /// <summary>
         /// Uploads a photo to Cloudinary and returns the image information.
         /// </summary>
         /// <param name="file">Image file</param>

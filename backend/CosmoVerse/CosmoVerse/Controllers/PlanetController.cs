@@ -3,8 +3,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using CosmoVerse.Models;
 using CosmoVerse.Services;
-using CosmoVerse.Application.Services;
 using Microsoft.AspNetCore.Authorization;
+using CosmoVerse.Application.Interfaces;
+using CosmoVerse.Application.DTOs;
 
 namespace CosmoVerse.Controllers
 {
@@ -20,6 +21,36 @@ namespace CosmoVerse.Controllers
             _planetService = planetService;
         }
 
-        
+        [HttpGet("get-all-planets")]
+        public async Task<IActionResult> GetAllPlanets()
+        {
+            try
+            {
+                var palnets = await _planetService.GetAllPlanetsAsync();
+                return Ok(palnets);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("{planetId}")]
+        public async Task<IActionResult> GetPlanetById(Guid planetId)
+        {
+            try
+            {
+                var planet = await _planetService.GetPlanetByIdAsync(planetId);
+                if (planet == null)
+                {
+                    return NotFound("Planet not found");
+                }
+                return Ok(planet);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

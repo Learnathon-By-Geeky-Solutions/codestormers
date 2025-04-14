@@ -1,4 +1,5 @@
-﻿using CosmoVerse.Application.Services;
+﻿using CosmoVerse.Application.Interfaces;
+using CosmoVerse.Application.Services;
 using CosmoVerse.Infrastructure.Services;
 using CosmoVerse.Repositories;
 using CosmoVerse.Services;
@@ -16,6 +17,9 @@ namespace CosmoVerse.Infrastructure
             service.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
             service.AddScoped<IUserService, UserService>();
             service.AddScoped<ICloudinaryService, CloudinaryService>();
+            service.AddScoped<IPlanetService, PlanetService>();
+            service.AddScoped<ISatelliteService, SatelliteService>();
+            service.AddScoped<ICelestialService, CelestialService>();
             return service;
         }
     }

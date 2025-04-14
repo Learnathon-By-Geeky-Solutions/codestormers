@@ -1,4 +1,6 @@
+using CosmoVerse.Domain.Entities;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace CosmoVerse.Models
 {
@@ -7,6 +9,7 @@ namespace CosmoVerse.Models
         [Key]
         public Guid Id { get; set; }
 
+        public string Name { get; set; } = string.Empty;
         public string Introduction { get; set; } = string.Empty;
         public string Namesake { get; set; } = string.Empty;
         public string PotentialForLife { get; set; } = string.Empty;
@@ -20,6 +23,9 @@ namespace CosmoVerse.Models
         public string Atmosphere { get; set; } = string.Empty;
         public string Magnetosphere { get; set; } = string.Empty;
 
+        public Guid CelestialSystemId { get; set; }
+        [JsonIgnore]
+        public virtual CelestialSystem CelestialSystem { get; set; }
         public virtual List<Satellite> Satellites { get; set; } = new List<Satellite>();
     }
 }

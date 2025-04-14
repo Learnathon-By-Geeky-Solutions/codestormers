@@ -12,5 +12,7 @@ namespace CosmoVerse.Services
         Task<bool> UpdateUser(User user, UpdateProfileDto request);
         Task<TokenResponseDto?> RefreshTokensAsync(RefreshTokenRequestDto request);
         Task<bool> ResetPasswordAsync(PasswordResetDto request);
+        Task<bool> DeleteUserAsync(Guid userId);
+        Task<List<object>> GetAllUsersAsync();
     }
 }
