@@ -1,10 +1,6 @@
 ﻿using CosmoVerse.Application.DTOs;
 using CosmoVerse.Domain.Entities;
-using CosmoVerse.Infrastructure.Services;
-using CosmoVerse.Models.Domain;
-using CosmoVerse.Models.Dto;
-using CosmoVerse.Repositories;
-using CosmoVerse.Services.Results;
+using CosmoVerse.Application.Interfaces.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -13,8 +9,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using CosmoVerse.Application.Interfaces;
 
-namespace CosmoVerse.Services
+namespace CosmoVerse.Infrastructure.Services
 {
     public class AuthService : IAuthService
     {

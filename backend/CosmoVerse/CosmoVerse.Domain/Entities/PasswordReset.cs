@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CosmoVerse.Models.Domain
+namespace CosmoVerse.Domain.Entities
 {
     public class PasswordReset
     {

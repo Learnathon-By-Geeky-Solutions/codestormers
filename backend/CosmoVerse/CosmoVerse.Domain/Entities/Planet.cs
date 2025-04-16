@@ -1,8 +1,7 @@
-using CosmoVerse.Domain.Entities;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace CosmoVerse.Models
+namespace CosmoVerse.Domain.Entities
 {
     public class Planet
     {

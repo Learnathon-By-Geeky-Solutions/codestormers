@@ -1,14 +1,7 @@
 ﻿using Azure.Core;
 using CosmoVerse.Application.DTOs;
 using CosmoVerse.Application.Interfaces;
-using CosmoVerse.Data;
-using CosmoVerse.Models;
-using CosmoVerse.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using CosmoVerse.Domain.Entities;
 
 namespace CosmoVerse.Infrastructure.Services
 {

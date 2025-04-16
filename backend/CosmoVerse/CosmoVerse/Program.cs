@@ -1,8 +1,5 @@
-using CosmoVerse.Application;
-using CosmoVerse.Data;
+using CosmoVerse.Infrastructure.Data;
 using CosmoVerse.Infrastructure;
-using CosmoVerse.Repositories;
-using CosmoVerse.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

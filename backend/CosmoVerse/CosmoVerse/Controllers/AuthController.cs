@@ -1,10 +1,7 @@
-﻿using CosmoVerse.Application.Services;
-using CosmoVerse.Models.Domain;
-using CosmoVerse.Models.Dto;
-using CosmoVerse.Repositories;
-using CosmoVerse.Services;
+﻿using CosmoVerse.Application.Interfaces;
+using CosmoVerse.Domain.Entities;
+using CosmoVerse.Application.DTOs;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 

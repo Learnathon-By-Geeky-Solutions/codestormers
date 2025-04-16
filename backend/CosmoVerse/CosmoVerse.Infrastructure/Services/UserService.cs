@@ -1,6 +1,5 @@
-﻿using CosmoVerse.Application.Services;
-using CosmoVerse.Models.Domain;
-using CosmoVerse.Repositories;
+﻿using CosmoVerse.Application.Interfaces;
+using CosmoVerse.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 

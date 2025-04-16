@@ -1,9 +1,7 @@
-﻿using CosmoVerse.Models;
 ﻿using CosmoVerse.Domain.Entities;
-using CosmoVerse.Models.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace CosmoVerse.Data
+namespace CosmoVerse.Infrastructure.Data
 {
     public class UserDbContext : DbContext
     {

@@ -1,6 +1,6 @@
-﻿using CosmoVerse.Models.Dto;
+﻿using CosmoVerse.Application.DTOs;
 
-namespace CosmoVerse.Services.Results
+namespace CosmoVerse.Application.Interfaces.Results
 {
     public class AuthResult
     {
