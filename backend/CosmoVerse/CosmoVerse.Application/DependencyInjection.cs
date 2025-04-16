@@ -1,4 +1,4 @@
-﻿using CosmoVerse.Services;
+﻿using CosmoVerse.Application.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;

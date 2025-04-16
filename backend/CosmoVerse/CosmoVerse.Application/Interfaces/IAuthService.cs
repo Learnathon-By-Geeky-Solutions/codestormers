@@ -1,8 +1,8 @@
-﻿using CosmoVerse.Models.Domain;
-using CosmoVerse.Models.Dto;
-using CosmoVerse.Services.Results;
+﻿using CosmoVerse.Domain.Entities;
+using CosmoVerse.Application.DTOs;
+using CosmoVerse.Application.Interfaces.Results;
 
-namespace CosmoVerse.Services
+namespace CosmoVerse.Application.Interfaces
 {
     public interface IAuthService
     {
@@ -12,5 +12,7 @@ namespace CosmoVerse.Services
         Task<bool> UpdateUser(User user, UpdateProfileDto request);
         Task<TokenResponseDto?> RefreshTokensAsync(RefreshTokenRequestDto request);
         Task<bool> ResetPasswordAsync(PasswordResetDto request);
+        Task<bool> DeleteUserAsync(Guid userId);
+        Task<List<object>> GetAllUsersAsync();
     }
 }

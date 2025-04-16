@@ -1,8 +1,9 @@
-﻿using CosmoVerse.Data;
+﻿using CosmoVerse.Application.Interfaces;
+using CosmoVerse.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-namespace CosmoVerse.Repositories
+namespace CosmoVerse.Infrastructure.Repositories
 {
     public class Repository<T, TId> : IRepository<T, TId> where T : class
     {
@@ -278,6 +279,41 @@ namespace CosmoVerse.Repositories
             catch (Exception ex)
             {
                 throw new InvalidOperationException("An unexpected error occurred while saving changes.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Finds entities based on a given filter predicate and projects them into a different type.
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="predicate"></param>
+        /// <param name="selector"></param>
+        /// <param name="includes"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
+        public async Task<IEnumerable<TResult>> FindWithProjectionAsync<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> selector, params Expression<Func<T, object>>[] includes)
+        {
+            if (predicate == null)
+                throw new ArgumentNullException(nameof(predicate));
+
+            if (selector == null)
+                throw new ArgumentNullException(nameof(selector));
+
+            IQueryable<T> query = _dbSet;
+
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+
+            try
+            {
+                return await query.Where(predicate).Select(selector).ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Error finding entity of type {typeof(T).Name} with the given projection.", ex);
             }
         }
     }

@@ -1,6 +1,6 @@
-﻿using CosmoVerse.Models.Domain;
+﻿using CosmoVerse.Domain.Entities;
 
-namespace CosmoVerse.Services
+namespace CosmoVerse.Application.Interfaces
 {
     public interface IEmailService
     {

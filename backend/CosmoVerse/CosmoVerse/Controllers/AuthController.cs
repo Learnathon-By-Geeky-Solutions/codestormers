@@ -1,10 +1,7 @@
-﻿using CosmoVerse.Application.Services;
-using CosmoVerse.Models.Domain;
-using CosmoVerse.Models.Dto;
-using CosmoVerse.Repositories;
-using CosmoVerse.Services;
+﻿using CosmoVerse.Application.Interfaces;
+using CosmoVerse.Domain.Entities;
+using CosmoVerse.Application.DTOs;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -27,7 +24,7 @@ namespace CosmoVerse.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<User>> Register([FromBody] UserDto request)
+        public async Task<ActionResult<User>> Register([FromForm] UserDto request)
         {
             try
             {
@@ -99,7 +96,7 @@ namespace CosmoVerse.Controllers
 
         [Authorize]
         [HttpPut("update-user")]
-        public async Task<ActionResult> UpdateUser([FromBody] UpdateProfileDto request)
+        public async Task<ActionResult> UpdateUser([FromForm]UpdateProfileDto request)
         {
             var user = await _userService.GetUserFromCookieAsync();
             if (user is null)
@@ -112,7 +109,7 @@ namespace CosmoVerse.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "An unexpected error occurred. Please try again later." });
+                return StatusCode(500, new { message = "An unexpected error occurred. Please try again later."});
             }
             return Ok();
         }
@@ -122,12 +119,24 @@ namespace CosmoVerse.Controllers
 
 
         [HttpPost("refresh-token")]
-        public async Task<ActionResult<TokenResponseDto>> RefreshToken([FromBody] RefreshTokenRequestDto request)
+        public async Task<ActionResult<TokenResponseDto>> RefreshToken()
         {
-            request.RefreshToken = Uri.UnescapeDataString(request.RefreshToken);
+            var refreshToken = Request.Cookies["RefreshToken"];
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                return Unauthorized("Invalid refresh token.");
+            }
+
+            var request = new RefreshTokenRequestDto
+            {
+                RefreshToken = refreshToken
+            };
+
             var tokenResponse = await _authService.RefreshTokensAsync(request);
             if (tokenResponse is null || tokenResponse.AccessToken is null || tokenResponse.RefreshToken is null)
+            {
                 return BadRequest("Invalid refresh token.");
+            }
 
             setTokenInCookies(tokenResponse.AccessToken, tokenResponse.RefreshToken);
 
@@ -139,12 +148,6 @@ namespace CosmoVerse.Controllers
         {
             try
             {
-                // Validate the email
-                //if (string.IsNullOrWhiteSpace(toEmail))
-                //{
-                //    return BadRequest(new { message = "Invalid email address." });
-                //}
-
                 var user = await _userService.GetUserFromCookieAsync();
 
                 if (user is null)
@@ -260,7 +263,7 @@ namespace CosmoVerse.Controllers
                 HttpOnly = true, // Prevents JavaScript access to the cookie
                 Secure = true,   // Ensures the cookie is sent over HTTPS
                 SameSite = SameSiteMode.Strict, // Prevent CSRF
-                Expires = DateTime.UtcNow.AddMinutes(30) // Set cookie expiration
+                Expires = DateTime.UtcNow.AddMinutes(30) // Cookie expiration
             };
 
             // Save AccessToken in cookies
@@ -272,7 +275,7 @@ namespace CosmoVerse.Controllers
                 HttpOnly = true, // Prevents JavaScript access to the cookie
                 Secure = true,   // Ensures the cookie is sent over HTTPS
                 SameSite = SameSiteMode.Strict, // Prevent CSRF
-                Expires = DateTime.UtcNow.AddDays(30) // Longer expiration for RefreshToken
+                Expires = DateTime.UtcNow.AddDays(30) // Expiration for RefreshToken
             };
 
             Response.Cookies.Append("RefreshToken", RefreshToken, refreshTokenOptions);

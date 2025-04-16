@@ -1,11 +1,10 @@
 ﻿using System.Net.Mail;
 using System.Net;
-using CosmoVerse.Models.Domain;
-using CosmoVerse.Repositories;
-using Microsoft.AspNetCore.Mvc;
+using CosmoVerse.Domain.Entities;
+using CosmoVerse.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
 
-namespace CosmoVerse.Services
+namespace CosmoVerse.Infrastructure.Services
 {
     public class EmailService : IEmailService
     {
@@ -35,11 +34,10 @@ namespace CosmoVerse.Services
         /// <returns>True if the email was sent successfully, or throws an exception if sending the email fails</returns>
         public async Task<bool> SendEmailAsync(string toEmail, string subject, string message)
         {
-            // Read email settings from appsettings.json
-            var smtpServer = _configuration["EmailSettings:SmtpServer"];
-            var portString = _configuration["EmailSettings:Port"];
-            var senderEmail = _configuration["EmailSettings:SenderEmail"];
-            var senderPassword = _configuration["EmailSettings:SenderPassword"];
+            var smtpServer = Environment.GetEnvironmentVariable("SMTP_SERVER");
+            var portString = Environment.GetEnvironmentVariable("PORT");
+            var senderEmail = Environment.GetEnvironmentVariable("SENDER_EMAIL");
+            var senderPassword = Environment.GetEnvironmentVariable("SENDER_PASSWORD");
 
             // Check if email settings are configured properly
             if (smtpServer == null || portString == null || senderEmail == null || senderPassword == null)

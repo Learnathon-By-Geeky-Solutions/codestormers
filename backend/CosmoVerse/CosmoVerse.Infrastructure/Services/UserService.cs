@@ -1,6 +1,5 @@
-﻿using CosmoVerse.Application.Services;
-using CosmoVerse.Models.Domain;
-using CosmoVerse.Repositories;
+﻿using CosmoVerse.Application.Interfaces;
+using CosmoVerse.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
@@ -15,6 +14,11 @@ namespace CosmoVerse.Infrastructure.Services
             _userRepository = userRepository;
             _httpContextAccessor = httpContextAccessor;
         }
+
+        /// <summary>
+        /// Get user from cookie
+        /// </summary>
+        /// <returns>User</returns>
         public async Task<User> GetUserFromCookieAsync()
         {
             var httpContext = _httpContextAccessor.HttpContext;
