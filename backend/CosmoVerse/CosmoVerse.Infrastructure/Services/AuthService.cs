@@ -138,10 +138,6 @@ namespace CosmoVerse.Infrastructure.Services
             {
                 user.Name = request.Name;
             }
-            else
-            {
-                user.Name = user.Name;
-            }
 
             if (request.ProfilePicture is not null && request.ProfilePicture.Length > 0)
             {
@@ -169,9 +165,9 @@ namespace CosmoVerse.Infrastructure.Services
                         var profilePhoto = new ProfilePhoto
                         {
                             Id = Guid.NewGuid(),
-                            Url = imageInfo?.ImageUrl,
-                            PublicId = imageInfo?.PublicId,
-                            CreatedAt = imageInfo?.CreatedAt ?? DateTime.UtcNow,
+                            Url = imageInfo.ImageUrl,
+                            PublicId = imageInfo.PublicId,
+                            CreatedAt = imageInfo.CreatedAt,
                             UserId = user.Id,
                             User = user
                         };
@@ -292,8 +288,11 @@ namespace CosmoVerse.Infrastructure.Services
                     new Claim("EmailVerified", user.IsEmailVerified.ToString()) // Custom claim
                 };
 
+            var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET")
+                ?? throw new InvalidOperationException("JWT_SECRET not configured");
+
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_configuration["AppSettings:Token"]!)); // Get the secret key from appsettings.json
+                Encoding.UTF8.GetBytes(secretKey)); 
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512); // Create signing credentials
 

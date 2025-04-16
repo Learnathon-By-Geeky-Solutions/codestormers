@@ -12,9 +12,9 @@ namespace CosmoVerse.Infrastructure.Services
         public CloudinaryService(IConfiguration _configuration)
         {
             var cloudinary = new Cloudinary(new Account(
-                _configuration["Cloudinary:CloudName"],
-                _configuration["Cloudinary:ApiKey"],
-                _configuration["Cloudinary:ApiSecret"]
+                Environment.GetEnvironmentVariable("CLOUD_NAME"),
+                Environment.GetEnvironmentVariable("API_KEY"),
+                Environment.GetEnvironmentVariable("API_SECRET")
             ));
             _cloudinary = cloudinary;
         }

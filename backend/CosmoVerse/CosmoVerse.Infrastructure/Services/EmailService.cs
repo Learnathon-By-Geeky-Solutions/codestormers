@@ -34,11 +34,10 @@ namespace CosmoVerse.Infrastructure.Services
         /// <returns>True if the email was sent successfully, or throws an exception if sending the email fails</returns>
         public async Task<bool> SendEmailAsync(string toEmail, string subject, string message)
         {
-            // Read email settings from appsettings.json
-            var smtpServer = _configuration["EmailSettings:SmtpServer"];
-            var portString = _configuration["EmailSettings:Port"];
-            var senderEmail = _configuration["EmailSettings:SenderEmail"];
-            var senderPassword = _configuration["EmailSettings:SenderPassword"];
+            var smtpServer = Environment.GetEnvironmentVariable("SMTP_SERVER");
+            var portString = Environment.GetEnvironmentVariable("PORT");
+            var senderEmail = Environment.GetEnvironmentVariable("SENDER_EMAIL");
+            var senderPassword = Environment.GetEnvironmentVariable("SENDER_PASSWORD");
 
             // Check if email settings are configured properly
             if (smtpServer == null || portString == null || senderEmail == null || senderPassword == null)
