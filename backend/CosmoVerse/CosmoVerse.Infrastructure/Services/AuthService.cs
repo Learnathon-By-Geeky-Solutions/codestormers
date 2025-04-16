@@ -109,9 +109,9 @@ namespace CosmoVerse.Infrastructure.Services
                     var profilePhoto = new ProfilePhoto
                     {
                         Id = Guid.NewGuid(),
-                        Url = imageInfo?.ImageUrl,
-                        PublicId = imageInfo?.PublicId,
-                        CreatedAt = imageInfo?.CreatedAt ?? DateTime.UtcNow,
+                        Url = imageInfo.ImageUrl,
+                        PublicId = imageInfo.PublicId,
+                        CreatedAt = imageInfo.CreatedAt,
                         UserId = user.Id,
                         User = user
                     };
