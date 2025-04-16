@@ -1,7 +1,7 @@
-﻿
-using CloudinaryDotNet;
+﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using CosmoVerse.Application.DTOs;
+using CosmoVerse.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
 
 namespace CosmoVerse.Infrastructure.Services

@@ -1,4 +1,4 @@
-﻿namespace CosmoVerse.Services.Results
+﻿namespace CosmoVerse.Application.Interfaces.Results
 {
     public class OperationResult
     {

@@ -1,13 +1,6 @@
 ﻿using CosmoVerse.Application.DTOs;
 using CosmoVerse.Application.Interfaces;
 using CosmoVerse.Domain.Entities;
-using CosmoVerse.Models;
-using CosmoVerse.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CosmoVerse.Infrastructure.Services
 {

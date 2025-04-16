@@ -1,8 +1,6 @@
 ﻿using CosmoVerse.Application.Interfaces;
-using CosmoVerse.Application.Services;
+using CosmoVerse.Infrastructure.Repositories;
 using CosmoVerse.Infrastructure.Services;
-using CosmoVerse.Repositories;
-using CosmoVerse.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

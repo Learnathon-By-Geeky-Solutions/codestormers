@@ -1,11 +1,10 @@
 ﻿using System.Net.Mail;
 using System.Net;
-using CosmoVerse.Models.Domain;
-using CosmoVerse.Repositories;
-using Microsoft.AspNetCore.Mvc;
+using CosmoVerse.Domain.Entities;
+using CosmoVerse.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
 
-namespace CosmoVerse.Services
+namespace CosmoVerse.Infrastructure.Services
 {
     public class EmailService : IEmailService
     {

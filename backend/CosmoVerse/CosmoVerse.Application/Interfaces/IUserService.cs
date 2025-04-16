@@ -1,11 +1,6 @@
-﻿using CosmoVerse.Models.Domain;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CosmoVerse.Domain.Entities;
 
-namespace CosmoVerse.Application.Services
+namespace CosmoVerse.Application.Interfaces
 {
     public interface IUserService
     {

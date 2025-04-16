@@ -1,8 +1,9 @@
-﻿using CosmoVerse.Data;
+﻿using CosmoVerse.Application.Interfaces;
+using CosmoVerse.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-namespace CosmoVerse.Repositories
+namespace CosmoVerse.Infrastructure.Repositories
 {
     public class Repository<T, TId> : IRepository<T, TId> where T : class
     {

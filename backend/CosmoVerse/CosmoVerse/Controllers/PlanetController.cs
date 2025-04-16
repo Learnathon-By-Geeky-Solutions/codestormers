@@ -1,11 +1,6 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using CosmoVerse.Models;
-using CosmoVerse.Services;
-using Microsoft.AspNetCore.Authorization;
 using CosmoVerse.Application.Interfaces;
-using CosmoVerse.Application.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CosmoVerse.Controllers
 {

@@ -1,6 +1,6 @@
 ﻿using CosmoVerse.Application.DTOs;
 
-namespace CosmoVerse.Infrastructure.Services
+namespace CosmoVerse.Application.Interfaces
 {
     public interface ICloudinaryService
     {

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CosmoVerse.Models.Dto
+namespace CosmoVerse.Application.DTOs
 {
     public class RefreshTokenRequestDto
     {

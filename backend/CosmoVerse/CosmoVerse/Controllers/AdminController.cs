@@ -1,9 +1,6 @@
 ﻿using CosmoVerse.Application.DTOs;
 using CosmoVerse.Application.Interfaces;
-using CosmoVerse.Models;
-using CosmoVerse.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CosmoVerse.Controllers

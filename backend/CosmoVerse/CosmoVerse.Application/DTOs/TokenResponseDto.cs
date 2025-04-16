@@ -1,4 +1,4 @@
-﻿namespace CosmoVerse.Models.Dto
+﻿namespace CosmoVerse.Application.DTOs
 {
     public class TokenResponseDto
     {

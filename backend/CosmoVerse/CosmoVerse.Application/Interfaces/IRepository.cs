@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace CosmoVerse.Repositories
+namespace CosmoVerse.Application.Interfaces
 {
     public interface IRepository<T, TId> where T : class
     {
