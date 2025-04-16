@@ -109,7 +109,7 @@ namespace CosmoVerse.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "An unexpected error occurred. Please try again later." });
+                return StatusCode(500, new { message = "An unexpected error occurred. Please try again later."});
             }
             return Ok();
         }
