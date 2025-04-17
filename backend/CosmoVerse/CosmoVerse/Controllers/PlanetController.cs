@@ -16,6 +16,14 @@ namespace CosmoVerse.Controllers
             _planetService = planetService;
         }
 
+        /// <summary>
+        /// Retrieves a list of all planets in the system.
+        /// </summary>
+        /// <returns>
+        /// A list of planets or an error message if the request fails.
+        /// </returns>
+        /// <response code="200">Returns a list of planets.</response>
+        /// <response code="400">If an error occurs while processing the request.</response>
         [HttpGet("get-all-planets")]
         public async Task<IActionResult> GetAllPlanets()
         {
@@ -30,6 +38,16 @@ namespace CosmoVerse.Controllers
             }
         }
 
+        /// <summary>
+        /// Retrieves a specific planet by its unique identifier.
+        /// </summary>
+        /// <param name="planetId">The unique identifier of the planet.</param>
+        /// <returns>
+        /// The requested planet, or a not found error if the planet is not found.
+        /// </returns>
+        /// <response code="200">Returns the requested planet.</response>
+        /// <response code="400">If an error occurs while processing the request.</response>
+        /// <response code="404">If the planet with the specified ID is not found.</response>
         [HttpGet("{planetId}")]
         public async Task<IActionResult> GetPlanetById(Guid planetId)
         {

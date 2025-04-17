@@ -23,6 +23,22 @@ namespace CosmoVerse.Controllers
             _userService = userService;
         }
 
+        /// <summary>
+        /// Registers a new user in the system.
+        /// </summary>
+        /// <param name="request">
+        /// An object containing the user's registration details, such as name, email, and password.
+        /// </param>
+        /// <returns>
+        /// Returns an <see cref="ActionResult{T}"/> of type <see cref="User"/>.
+        /// - Returns an HTTP 201 Created response if the user is successfully registered.
+        /// - Returns an HTTP 500 Internal Server Error if an unexpected error occurs during registration or email verification.
+        /// - Returns an HTTP 400 Bad Request if an exception is thrown with an error message.
+        /// </returns>
+        /// <remarks>
+        /// Upon successful registration, a verification email is sent to the user's email address.
+        /// The user's ID is included in the location of the created resource.
+        /// </remarks>
         [HttpPost("register")]
         public async Task<ActionResult<User>> Register([FromForm] UserDto request)
         {
@@ -50,6 +66,20 @@ namespace CosmoVerse.Controllers
             }   
         }
 
+        /// <summary>
+        /// Authenticates a user using their login credentials.
+        /// </summary>
+        /// <param name="request">
+        /// An object containing the user's email and password for login.
+        /// </param>
+        /// <returns>
+        /// Returns an <see cref="ActionResult{T}"/> containing a <see cref="TokenResponseDto"/> if authentication succeeds.
+        /// If authentication fails, returns an HTTP 401 Unauthorized response with an error message.
+        /// If an unexpected error occurs, returns an HTTP 500 Internal Server Error with a message.
+        /// </returns>
+        /// <remarks>
+        /// This endpoint sets the access token and refresh token in the user's cookies upon successful login.
+        /// </remarks>
         [HttpPost("login")]
         public async Task<ActionResult<TokenResponseDto>> Login([FromBody] UserLoginDto request)
         {
@@ -74,6 +104,19 @@ namespace CosmoVerse.Controllers
             }
         }
 
+        /// <summary>
+        /// Retrieves the currently authenticated user's information.
+        /// </summary>
+        /// <returns>
+        /// Returns an <see cref="ActionResult{T}"/> of type <see cref="User"/>.
+        /// - Returns an HTTP 200 OK response with the user information if the user is found.
+        /// - Returns an HTTP 401 Unauthorized response if the user ID claim is missing or invalid.
+        /// - Returns an HTTP 404 Not Found response if no user is found with the given ID.
+        /// </returns>
+        /// <remarks>
+        /// This endpoint requires the user to be authenticated and authorized.
+        /// The user's ID is extracted from the claims provided by the authentication token.
+        /// </remarks>
         [Authorize]
         [HttpGet("User")]
         public async Task<ActionResult<User>> GetUser()
@@ -93,7 +136,22 @@ namespace CosmoVerse.Controllers
             return Ok(user);
         }
 
-
+        /// <summary>
+        /// Updates the currently authenticated user's profile information.
+        /// </summary>
+        /// <param name="request">
+        /// An object containing the updated user profile details, such as name, email, etc.
+        /// </param>
+        /// <returns>
+        /// Returns an <see cref="ActionResult"/>:
+        /// - HTTP 200 OK if the user's profile is successfully updated.
+        /// - HTTP 401 Unauthorized if the user is not found or not authenticated.
+        /// - HTTP 500 Internal Server Error if an unexpected error occurs during the update process.
+        /// </returns>
+        /// <remarks>
+        /// This endpoint requires the user to be authenticated. The user's details are retrieved from cookies,
+        /// and their profile is updated based on the provided <see cref="UpdateProfileDto"/>.
+        /// </remarks>
         [Authorize]
         [HttpPut("update-user")]
         public async Task<ActionResult> UpdateUser([FromForm]UpdateProfileDto request)
@@ -114,10 +172,19 @@ namespace CosmoVerse.Controllers
             return Ok();
         }
 
-
-
-
-
+        /// <summary>
+        /// Refreshes the user's access token using a valid refresh token from the cookies.
+        /// </summary>
+        /// <returns>
+        /// Returns an <see cref="ActionResult{T}"/>:
+        /// - HTTP 200 OK if the refresh token is valid and the new tokens are generated successfully.
+        /// - HTTP 401 Unauthorized if no valid refresh token is found in the cookies.
+        /// - HTTP 400 Bad Request if the refresh token is invalid or the tokens cannot be refreshed.
+        /// </returns>
+        /// <remarks>
+        /// This endpoint requires the refresh token to be present in the user's cookies.
+        /// If the refresh token is valid, new access and refresh tokens are generated and set in the cookies.
+        /// </remarks>
         [HttpPost("refresh-token")]
         public async Task<ActionResult<TokenResponseDto>> RefreshToken()
         {
@@ -143,6 +210,18 @@ namespace CosmoVerse.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Sends a verification email to the authenticated user.
+        /// </summary>
+        /// <returns>
+        /// Returns an <see cref="IActionResult"/>:
+        /// - HTTP 200 OK if the verification email is sent successfully.
+        /// - HTTP 401 Unauthorized if the user is not authenticated.
+        /// - HTTP 500 Internal Server Error if an error occurs during the email sending process.
+        /// </returns>
+        /// <remarks>
+        /// This endpoint requires the user to be authenticated. Upon successful authentication, it sends a verification email.
+        /// </remarks>
         [HttpPost("Sent-verification-email")]
         public async Task<IActionResult> SentEmailForVerify()
         {
@@ -166,6 +245,20 @@ namespace CosmoVerse.Controllers
             }
         }
 
+        /// <summary>
+        /// Verifies the user's email address using a verification token.
+        /// </summary>
+        /// <param name="verificationRequest">
+        /// The email and verification token required to verify the user's email address.
+        /// </param>
+        /// <returns>
+        /// Returns an <see cref="ActionResult"/>:
+        /// - HTTP 200 OK if the email is successfully verified.
+        /// - HTTP 400 Bad Request if there is an error during the email verification process.
+        /// </returns>
+        /// <remarks>
+        /// This endpoint allows the user to verify their email address by providing the email and associated verification token.
+        /// </remarks>
         [HttpPost("verify-email")]
         public async Task<ActionResult> VerifyEmail([FromBody] VerifyEmailDto verificationRequest)
         {
@@ -181,9 +274,23 @@ namespace CosmoVerse.Controllers
             }
         }
 
-
-        [HttpPost("forgot-password-code")]
-        public async Task<IActionResult> ForgotPasswordCode([FromBody] string email)
+        /// <summary>
+        /// Initiates the password reset process by sending a password reset email to the provided email address.
+        /// </summary>
+        /// <param name="email">
+        /// The email address associated with the user's account. A valid email address is required to send the reset email.
+        /// </param>
+        /// <returns>
+        /// Returns an <see cref="IActionResult"/>:
+        /// - HTTP 200 OK if the password reset email is sent successfully.
+        /// - HTTP 400 Bad Request if the provided email address is invalid or empty.
+        /// - HTTP 500 Internal Server Error if an error occurs during the email sending process.
+        /// </returns>
+        /// <remarks>
+        /// This endpoint is used to request a password reset. A reset email with a reset link will be sent to the specified email address.
+        /// </remarks>
+        [HttpPost("request-password-reset")]
+        public async Task<IActionResult> RequestPasswordCode([FromBody] string email)
         {
             try
             {
@@ -204,6 +311,23 @@ namespace CosmoVerse.Controllers
             }
         }
 
+        /// <summary>
+        /// Resets the user's password using a provided token and new password.
+        /// </summary>
+        /// <param name="request">
+        /// The password reset request containing the email address, reset token, and new password.
+        /// </param>
+        /// <returns>
+        /// Returns an <see cref="IActionResult"/>:
+        /// - HTTP 200 OK if the password is successfully reset.
+        /// - HTTP 400 Bad Request if the provided email or reset token is invalid.
+        /// - HTTP 404 Not Found if the email address is not registered.
+        /// - HTTP 500 Internal Server Error if an unexpected error occurs during the password reset process.
+        /// </returns>
+        /// <remarks>
+        /// This endpoint is used to reset the user's password after they have provided a valid reset token.
+        /// The token is sent via email after the user requests a password reset.
+        /// </remarks>
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] PasswordResetDto request)
         {
@@ -232,7 +356,15 @@ namespace CosmoVerse.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Logs the current user out by clearing the authentication tokens from the session.
+        /// This operation removes the user's access and refresh tokens, effectively ending their session.
+        /// </summary>
+        /// <returns>
+        /// An HTTP status code indicating the outcome of the logout operation:
+        /// - 200 OK if the user was logged out successfully.
+        /// - 400 Bad Request if the logout request was malformed or failed.
+        /// </returns>
         [HttpPost("Logout")]
         public IActionResult Logout()
         {

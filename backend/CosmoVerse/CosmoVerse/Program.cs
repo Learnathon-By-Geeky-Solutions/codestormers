@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using DotNetEnv;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +15,21 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(SetupAction =>
+{
+    SetupAction.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "CosmoVerse API",
+        Version = "v1",
+        Description = "CosmoVerse API Documentation"
+    });
+
+    var xmlCommentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlCommentsPath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFile);
+
+    SetupAction.IncludeXmlComments(xmlCommentsPath);
+
+});
 
 builder.Services.AddDbContext<UserDbContext>(options =>
     options.UseSqlServer(
@@ -92,10 +107,22 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+    });
 }
 
 app.UseCors("AllowAllOrigins");
+
+app.UseSwagger();
+
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "CosmoVerse API V1");
+    c.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
+}
+);
 
 app.UseHttpsRedirection();
 
