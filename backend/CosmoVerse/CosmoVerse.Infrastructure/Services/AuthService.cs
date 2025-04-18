@@ -102,7 +102,7 @@ namespace CosmoVerse.Infrastructure.Services
 
             if (request.ProfilePicture is not null && request.ProfilePicture.Length > 0)
             {
-                var imageInfo = await uploadPhoto(request.ProfilePicture);
+                var imageInfo = await UploadPhoto(request.ProfilePicture);
 
                 if (imageInfo is not null)
                 {
@@ -159,7 +159,7 @@ namespace CosmoVerse.Infrastructure.Services
                         await _profilePhotoRepository.DeleteAsync(user.ProfilePhoto);
                     }
 
-                    var imageInfo = await uploadPhoto(request.ProfilePicture);
+                    var imageInfo = await UploadPhoto(request.ProfilePicture);
                     if (imageInfo is not null)
                     {
                         var profilePhoto = new ProfilePhoto
@@ -209,7 +209,6 @@ namespace CosmoVerse.Infrastructure.Services
         /// <summary>
         /// Validates the refresh token for a given user.
         /// </summary>
-        /// <param name="userId">User Id</param>
         /// <param name="refreshToken">RefreshToken of the user</param>
         /// <returns>User if the refresh token valid otherwise null</returns>
         private async Task<User?> ValidateRefreshTokenAsync(string refreshToken)
@@ -218,7 +217,7 @@ namespace CosmoVerse.Infrastructure.Services
             var user = await _repository.FindAsync(u=> u.RefreshToken == refreshToken);
 
             // Check if the user exists and the refresh token is valid
-            if (user is null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+            if (user is null || !SecureCompare(user.RefreshToken, refreshToken) || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
             {
                 return null;
             }
@@ -423,7 +422,7 @@ namespace CosmoVerse.Infrastructure.Services
         /// </summary>
         /// <param name="file">Image file</param>
         /// <returns>Image info</returns>
-        private async Task<ImageDto> uploadPhoto(IFormFile file)
+        private async Task<ImageDto> UploadPhoto(IFormFile file)
         {
             if (file.Length > 0)
             {
@@ -447,6 +446,28 @@ namespace CosmoVerse.Infrastructure.Services
                 return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Performs a constant-time comparison of two strings to prevent timing attacks.
+        /// </summary>
+        /// <param name="a">The first string to compare.</param>
+        /// <param name="b">The second string to compare.</param>
+        /// <returns>
+        /// True if the strings are equal; otherwise, false.
+        /// </returns>
+        private static bool SecureCompare(string a, string b)
+        {
+            if (a.Length != b.Length)
+            {
+                return false;                
+            }
+            int result = 0;
+            for(int i = 0; i < a.Length; i++)
+            {
+                result |= a[i] ^ b[i];
+            }
+            return result == 0;
         }
     }
 }

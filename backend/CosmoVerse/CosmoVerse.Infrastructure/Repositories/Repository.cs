@@ -64,6 +64,7 @@ namespace CosmoVerse.Infrastructure.Repositories
         /// Finds an entity based on a given filter predicate.
         /// </summary>
         /// <param name="predicate">A LINQ predicate to filter the data.</param>
+        /// <param name="includes">Optional includes for related entities.</param>
         /// <returns>The first entity matching the predicate, or null if no match is found.</returns>
         /// <exception cref="ArgumentNullException">Thrown if the predicate is null.</exception>
         /// <exception cref="Exception">Thrown if an error occurs during the database operation.</exception>
@@ -96,6 +97,7 @@ namespace CosmoVerse.Infrastructure.Repositories
         /// Finds all entities matching a given filter predicate.
         /// </summary>
         /// <param name="predicate">A LINQ predicate to filter the data.</param>
+        /// <param name="includes">Optional includes for related entities.</param>
         /// <returns>A list of entities that match the filter predicate. Returns an empty list if no matches are found.</returns>
         /// <exception cref="ArgumentNullException">Thrown if the predicate is null.</exception>
         /// <exception cref="Exception">Thrown if an error occurs during the database operation.</exception>
