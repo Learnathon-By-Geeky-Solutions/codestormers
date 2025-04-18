@@ -18,15 +18,15 @@ namespace CosmoVerse.Controllers
         }
 
         /// <summary>
-        /// Retrieves a list of all satellites.
+        /// Retrieves a list of all satellites in the system.
         /// </summary>
         /// <returns>
-        /// A list of all satellites, or an error message if the request fails.
+        /// An HTTP response containing a list of satellites if successful, or an error message if the request fails.
         /// </returns>
-        /// <response code="200">Returns a list of satellites.</response>
-        /// <response code="400">If an error occurs while processing the request.</response>
-        [HttpGet("get-all-satellite")]
-        public async Task<IActionResult> GetAllSatellite()
+        /// <response code="200">Successfully retrieves the list of satellites.</response>
+        /// <response code="500">An unexpected server error occurred while processing the request.</response>
+        [HttpGet("get-all-satellites")]
+        public async Task<IActionResult> GetAllSatellites()
         {
             try
             {
@@ -35,23 +35,28 @@ namespace CosmoVerse.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, "An unexpected error occurred. Please try again later.");
             }
         }
 
         /// <summary>
         /// Retrieves a specific satellite by its unique identifier.
         /// </summary>
-        /// <param name="satelliteId">The unique identifier of the satellite.</param>
+        /// <param name="satelliteId">The unique identifier of the satellite to retrieve.</param>
         /// <returns>
-        /// The requested satellite, or a not found error if the satellite is not found.
+        /// An HTTP response containing the requested satellite details if found, or an appropriate error response if not.
         /// </returns>
-        /// <response code="200">Returns the requested satellite.</response>
-        /// <response code="400">If an error occurs while processing the request.</response>
-        /// <response code="404">If the satellite with the specified ID is not found.</response>
+        /// <response code="200">Successfully retrieves the requested satellite.</response>
+        /// <response code="400">The provided satellite ID is invalid.</response>
+        /// <response code="404">No satellite is found with the specified ID.</response>
+        /// <response code="500">An unexpected server error occurred while processing the request.</response>
         [HttpGet("{satelliteId}")]
         public async Task<ActionResult<SatelliteInfoDto>> GetSatelliteById(Guid satelliteId)
         {
+            if (satelliteId == Guid.Empty)
+            {
+                return BadRequest("Invalid satellite ID");
+            }
             try
             {
                 var satellite = await _satelliteService.GetSatelliteByIdAsync(satelliteId);
@@ -63,7 +68,7 @@ namespace CosmoVerse.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, "An unexpected error occurred. Please try again later.");
             }
         }
     }

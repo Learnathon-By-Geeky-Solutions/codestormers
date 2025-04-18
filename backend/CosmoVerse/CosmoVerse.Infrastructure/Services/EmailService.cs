@@ -78,7 +78,7 @@ namespace CosmoVerse.Infrastructure.Services
         /// Saves the email verification token in the database for the specified email address.
         /// and deletes the existing token if it exists
         /// </summary>
-        /// <param name="email">The email address to save the token for</param>
+        /// <param name="user">The user to save the token for</param>
         /// <param name="token">The token to save</param>
         /// <returns>True if the token was saved successfully</returns>
         public async Task<bool> SaveEmailVerificationTokenAsync(User user, string token)
@@ -121,7 +121,7 @@ namespace CosmoVerse.Infrastructure.Services
         /// <summary>
         /// Sends an email to the specified email address with a verification link.
         /// </summary>
-        /// <param name="toEmail">The email address to send the email to</param>
+        /// <param name="user">The user to send the email to</param>
         /// <returns>True if the email was sent successfully, or throws an exception if sending the email fails</returns>
         public async Task<bool> SendEmailForVerifyAsync(User user)
         {
@@ -206,7 +206,7 @@ namespace CosmoVerse.Infrastructure.Services
         public async Task<bool> SendPasswordResetEmailAsync(string toEmail)
         {
             // Generate a new token
-            var token = generateToken(6);
+            var token = GenerateToken(6);
 
             // Email subject and message
             string subject = "Your single-use code";
@@ -264,7 +264,7 @@ namespace CosmoVerse.Infrastructure.Services
 
 
         
-        private static string generateToken(int length)
+        private static string GenerateToken(int length)
         {
             const string validChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             Random rand = new Random();
