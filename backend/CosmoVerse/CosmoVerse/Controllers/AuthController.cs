@@ -88,10 +88,11 @@ namespace CosmoVerse.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<TokenResponseDto>> Login([FromBody] UserLoginDto request)
         {
-            if (request == null)
+            if (request == null || string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
             {
-                return BadRequest("Invalid request data.");
+                return BadRequest("Invalid request data. Email and password are required.");
             }
+
             try
             {
                 // Authenticate user
