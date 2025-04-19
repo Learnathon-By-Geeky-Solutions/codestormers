@@ -79,7 +79,6 @@ namespace CosmoVerse.Controllers
         /// Returns response with access and refresh tokens if authentication is successful and set in cookies.
         /// </returns>
         /// <response code="200">If authentication succeeds, returns the access and refresh tokens.</response>
-        /// <response code="400">If the provided input is invalid.</response>
         /// <response code="401">If authentication fails due to invalid credentials.</response>
         /// <response code="500">If an unexpected error occurs during authentication.</response>
         /// <remarks>
@@ -88,11 +87,6 @@ namespace CosmoVerse.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<TokenResponseDto>> Login([FromBody] UserLoginDto request)
         {
-            if (request == null || string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
-            {
-                return BadRequest("Invalid request data. Email and password are required.");
-            }
-
             try
             {
                 // Authenticate user
