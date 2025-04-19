@@ -184,7 +184,7 @@ namespace CosmoVerse.Infrastructure.Services
             var user = await _repository.FindAsync(u=> u.RefreshToken == refreshToken);
 
             // Check if the user exists and the refresh token is valid
-            if (user is null || !SecureCompare(user.RefreshToken, refreshToken) || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+            if (user is null || string.IsNullOrEmpty(user.RefreshToken) || !SecureCompare(user.RefreshToken, refreshToken) || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
             {
                 return null;
             }

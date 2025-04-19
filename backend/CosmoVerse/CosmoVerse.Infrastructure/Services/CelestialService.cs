@@ -71,7 +71,7 @@ namespace CosmoVerse.Infrastructure.Services
                     Name = celestial.Name,
                     Description = celestial.Description,
                     Type = celestial.Type,
-                    structure = celestial.Structure,
+                    Structure = celestial.Structure,
                     Planets = celestial.Planets.Select(p => new { p.Id, p.Name }).ToList()
                 }
             );
