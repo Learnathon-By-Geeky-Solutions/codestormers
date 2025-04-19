@@ -19,7 +19,7 @@ namespace CosmoVerse.Infrastructure.Services
                 Name = celestialSystem.Name,
                 Description = celestialSystem.Description,
                 Type = celestialSystem.Type,
-                structure = celestialSystem.structure,
+                Structure = celestialSystem.Structure,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
             };
@@ -71,7 +71,7 @@ namespace CosmoVerse.Infrastructure.Services
                     Name = celestial.Name,
                     Description = celestial.Description,
                     Type = celestial.Type,
-                    structure = celestial.structure,
+                    Structure = celestial.Structure,
                     Planets = celestial.Planets.Select(p => new { p.Id, p.Name }).ToList()
                 }
             );
@@ -94,7 +94,7 @@ namespace CosmoVerse.Infrastructure.Services
             celestialSystemEntity.Name = celestialSystem.Name;
             celestialSystemEntity.Description = celestialSystem.Description;
             celestialSystemEntity.Type = celestialSystem.Type;
-            celestialSystemEntity.structure = celestialSystem.structure;
+            celestialSystemEntity.Structure = celestialSystem.Structure;
             celestialSystemEntity.UpdatedAt = DateTime.UtcNow;
 
             try

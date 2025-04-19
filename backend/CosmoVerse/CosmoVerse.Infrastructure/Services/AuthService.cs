@@ -21,8 +21,6 @@ namespace CosmoVerse.Infrastructure.Services
         private readonly IRepository<ProfilePhoto, Guid> _profilePhotoRepository;
         private readonly ICloudinaryService _cloudinaryService;
 
-
-        // Injecting IConfiguration and IRepository<User> into the constructor
         public AuthService(IConfiguration _configuration, IRepository<User, Guid> _repository, IRepository<PasswordReset, Guid> _passwordResetRepository, ICloudinaryService cloudinaryService, IRepository<ProfilePhoto, Guid> profilePhotoRepository)
         {
             this._configuration = _configuration;
@@ -88,38 +86,8 @@ namespace CosmoVerse.Infrastructure.Services
             user.CreatedAt = DateTime.UtcNow;
             user.UpdatedAt = DateTime.UtcNow;
 
-            if (request.ProfilePicture is not null && request.ProfilePicture.Length > 0)
-            {
-                var acceptedTypes = new[] { ".jpeg", ".png", ".jpg" };
-                if (!acceptedTypes.Contains(Path.GetExtension(request.ProfilePicture.FileName)))
-                {
-                    throw new InvalidOperationException("Invalid image file type");
-                }
-            }
-
             // Add the user to the database
             await _repository.AddAsync(user);
-
-            if (request.ProfilePicture is not null && request.ProfilePicture.Length > 0)
-            {
-                var imageInfo = await uploadPhoto(request.ProfilePicture);
-
-                if (imageInfo is not null)
-                {
-                    var profilePhoto = new ProfilePhoto
-                    {
-                        Id = Guid.NewGuid(),
-                        Url = imageInfo.ImageUrl,
-                        PublicId = imageInfo.PublicId,
-                        CreatedAt = imageInfo.CreatedAt,
-                        UserId = user.Id,
-                        User = user
-                    };
-
-                    // Add the profile photo to the database
-                    await _profilePhotoRepository.AddAsync(profilePhoto);
-                }
-            }
 
             // Return the newly created user record
             return user;
@@ -159,7 +127,7 @@ namespace CosmoVerse.Infrastructure.Services
                         await _profilePhotoRepository.DeleteAsync(user.ProfilePhoto);
                     }
 
-                    var imageInfo = await uploadPhoto(request.ProfilePicture);
+                    var imageInfo = await UploadPhoto(request.ProfilePicture);
                     if (imageInfo is not null)
                     {
                         var profilePhoto = new ProfilePhoto
@@ -190,16 +158,15 @@ namespace CosmoVerse.Infrastructure.Services
         /// Refreshes the user's access token using a valid refresh token.
         /// </summary>
         /// <param name="request">The refresh token request model containing the user ID and refresh token</param>
-        /// <returns>A token response if the refresh token is valid, or throws an exception if the refresh token is invalid</returns>
+        /// <returns>A token response if the refresh token is valid, or null if the refresh token is invalid</returns>
         public async Task<TokenResponseDto?> RefreshTokensAsync(RefreshTokenRequestDto request)
         {
             // Validate the refresh token
             var user = await ValidateRefreshTokenAsync(request.RefreshToken);
 
-            // Throw an exception if the refresh token is invalid
             if (user is null)
             {
-                throw new InvalidOperationException("Invalid refresh token");
+                return null;
             }
 
             // Return a token response containing new access token and refresh token if the refresh token is valid
@@ -209,7 +176,6 @@ namespace CosmoVerse.Infrastructure.Services
         /// <summary>
         /// Validates the refresh token for a given user.
         /// </summary>
-        /// <param name="userId">User Id</param>
         /// <param name="refreshToken">RefreshToken of the user</param>
         /// <returns>User if the refresh token valid otherwise null</returns>
         private async Task<User?> ValidateRefreshTokenAsync(string refreshToken)
@@ -218,7 +184,7 @@ namespace CosmoVerse.Infrastructure.Services
             var user = await _repository.FindAsync(u=> u.RefreshToken == refreshToken);
 
             // Check if the user exists and the refresh token is valid
-            if (user is null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+            if (user is null || string.IsNullOrEmpty(user.RefreshToken) || !SecureCompare(user.RefreshToken, refreshToken) || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
             {
                 return null;
             }
@@ -423,7 +389,7 @@ namespace CosmoVerse.Infrastructure.Services
         /// </summary>
         /// <param name="file">Image file</param>
         /// <returns>Image info</returns>
-        private async Task<ImageDto> uploadPhoto(IFormFile file)
+        private async Task<ImageDto> UploadPhoto(IFormFile file)
         {
             if (file.Length > 0)
             {
@@ -447,6 +413,28 @@ namespace CosmoVerse.Infrastructure.Services
                 return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Performs a constant-time comparison of two strings to prevent timing attacks.
+        /// </summary>
+        /// <param name="a">The first string to compare.</param>
+        /// <param name="b">The second string to compare.</param>
+        /// <returns>
+        /// True if the strings are equal; otherwise, false.
+        /// </returns>
+        private static bool SecureCompare(string a, string b)
+        {
+            if (a.Length != b.Length)
+            {
+                return false;                
+            }
+            int result = 0;
+            for(int i = 0; i < a.Length; i++)
+            {
+                result |= a[i] ^ b[i];
+            }
+            return result == 0;
         }
     }
 }
