@@ -106,7 +106,7 @@ namespace CosmoVerse.Infrastructure.Services
                 satellite.Description = request.Description;
                 satellite.UpdatedAt = DateTime.UtcNow;
 
-                if (request != null && request.PlanetId != null)
+                if (request != null && request.PlanetId != Guid.Empty)
                 {
                     satellite.PlanetId = request.PlanetId;
                 }
