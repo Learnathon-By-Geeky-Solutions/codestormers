@@ -21,8 +21,6 @@ namespace CosmoVerse.Infrastructure.Services
         private readonly IRepository<ProfilePhoto, Guid> _profilePhotoRepository;
         private readonly ICloudinaryService _cloudinaryService;
 
-
-        // Injecting IConfiguration and IRepository<User> into the constructor
         public AuthService(IConfiguration _configuration, IRepository<User, Guid> _repository, IRepository<PasswordReset, Guid> _passwordResetRepository, ICloudinaryService cloudinaryService, IRepository<ProfilePhoto, Guid> profilePhotoRepository)
         {
             this._configuration = _configuration;
@@ -190,16 +188,15 @@ namespace CosmoVerse.Infrastructure.Services
         /// Refreshes the user's access token using a valid refresh token.
         /// </summary>
         /// <param name="request">The refresh token request model containing the user ID and refresh token</param>
-        /// <returns>A token response if the refresh token is valid, or throws an exception if the refresh token is invalid</returns>
+        /// <returns>A token response if the refresh token is valid, or null if the refresh token is invalid</returns>
         public async Task<TokenResponseDto?> RefreshTokensAsync(RefreshTokenRequestDto request)
         {
             // Validate the refresh token
             var user = await ValidateRefreshTokenAsync(request.RefreshToken);
 
-            // Throw an exception if the refresh token is invalid
             if (user is null)
             {
-                throw new InvalidOperationException("Invalid refresh token");
+                return null;
             }
 
             // Return a token response containing new access token and refresh token if the refresh token is valid

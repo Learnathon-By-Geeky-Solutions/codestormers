@@ -3,12 +3,12 @@ using System.Net;
 using CosmoVerse.Domain.Entities;
 using CosmoVerse.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
+using System.Security.Cryptography;
 
 namespace CosmoVerse.Infrastructure.Services
 {
     public class EmailService : IEmailService
     {
-        private readonly IConfiguration _configuration;
         private readonly IRepository<User, Guid> _repository;
         private readonly IRepository<PasswordReset, Guid> _passwordResetRepository;
         private readonly IRepository<EmailVerification, Guid> _emailVerificationRepository;
@@ -16,9 +16,8 @@ namespace CosmoVerse.Infrastructure.Services
 
 
         // Injecting IConfiguration and IRepository<User> and IRepository<EmailVerification> into the constructor
-        public EmailService(IConfiguration Configuration, IRepository<User, Guid> _repository, IRepository<EmailVerification, Guid> _emailVerificationRepository, IRepository<PasswordReset, Guid> _passwordResetRepository)
+        public EmailService(IRepository<User, Guid> _repository, IRepository<EmailVerification, Guid> _emailVerificationRepository, IRepository<PasswordReset, Guid> _passwordResetRepository)
         {
-            _configuration = Configuration;
             this._repository = _repository;
             this._emailVerificationRepository = _emailVerificationRepository;
             this._passwordResetRepository = _passwordResetRepository;
@@ -67,9 +66,13 @@ namespace CosmoVerse.Infrastructure.Services
                 await client.SendMailAsync(mailMessage);
                 return true;
             }
-            catch (Exception ex)
+            catch (SmtpException ex)
             {
-                throw new InvalidOperationException("Failed to send email", ex);
+                throw new InvalidOperationException("Failed to send email due to SMTP error", ex);
+            }
+            catch (InvalidOperationException ex)
+            {
+                throw new InvalidOperationException("Failed to send email due to invalid operation", ex);
             }
         }
 
@@ -267,12 +270,20 @@ namespace CosmoVerse.Infrastructure.Services
         private static string GenerateToken(int length)
         {
             const string validChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            Random rand = new Random();
             char[] token = new char[length];
-            for(int i = 0; i < length; i++)
+            byte[] randomBytes = new byte[length];
+
+            // Use RandomNumberGenerator for cryptographic security
+            using (var rng = RandomNumberGenerator.Create())
             {
-                token[i] = validChars[rand.Next(validChars.Length)];
+                rng.GetBytes(randomBytes);
             }
+
+            for (int i = 0; i < length; i++)
+            {
+                token[i] = validChars[randomBytes[i] % validChars.Length];
+            }
+
             return new string(token);
         }
 

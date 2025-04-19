@@ -1,5 +1,8 @@
 ﻿namespace CosmoVerse.Application.DTOs
 {
+    /// <summary>
+    /// Satellite Data Transfer Object.
+    /// </summary>
     public class SatelliteDto
     {
         public required string Name { get; set; }
