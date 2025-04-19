@@ -86,38 +86,8 @@ namespace CosmoVerse.Infrastructure.Services
             user.CreatedAt = DateTime.UtcNow;
             user.UpdatedAt = DateTime.UtcNow;
 
-            if (request.ProfilePicture is not null && request.ProfilePicture.Length > 0)
-            {
-                var acceptedTypes = new[] { ".jpeg", ".png", ".jpg" };
-                if (!acceptedTypes.Contains(Path.GetExtension(request.ProfilePicture.FileName)))
-                {
-                    throw new InvalidOperationException("Invalid image file type");
-                }
-            }
-
             // Add the user to the database
             await _repository.AddAsync(user);
-
-            if (request.ProfilePicture is not null && request.ProfilePicture.Length > 0)
-            {
-                var imageInfo = await UploadPhoto(request.ProfilePicture);
-
-                if (imageInfo is not null)
-                {
-                    var profilePhoto = new ProfilePhoto
-                    {
-                        Id = Guid.NewGuid(),
-                        Url = imageInfo.ImageUrl,
-                        PublicId = imageInfo.PublicId,
-                        CreatedAt = imageInfo.CreatedAt,
-                        UserId = user.Id,
-                        User = user
-                    };
-
-                    // Add the profile photo to the database
-                    await _profilePhotoRepository.AddAsync(profilePhoto);
-                }
-            }
 
             // Return the newly created user record
             return user;

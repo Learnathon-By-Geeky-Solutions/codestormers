@@ -40,7 +40,7 @@ namespace CosmoVerse.Controllers
         /// The user's ID is included in the location header of the created resource.
         /// </remarks>
         [HttpPost("register")]
-        public async Task<ActionResult<User>> Register([FromForm] UserDto request)
+        public async Task<ActionResult<User>> Register([FromBody] UserDto request)
         {
             if (request == null) {
                 return BadRequest("Invalid request data.");
