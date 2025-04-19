@@ -11,13 +11,11 @@ namespace CosmoVerse.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly ILogger<AuthController> _logger;
         private readonly IAuthService _authService;
         private readonly IEmailService _emailService;
         private readonly IUserService _userService;
-        public AuthController(ILogger<AuthController> logger, IAuthService authService, IEmailService emailService, IUserService userService)
+        public AuthController(IAuthService authService, IEmailService emailService, IUserService userService)
         {
-            _logger = logger;
             _authService = authService;
             _emailService = emailService;
             _userService = userService;
