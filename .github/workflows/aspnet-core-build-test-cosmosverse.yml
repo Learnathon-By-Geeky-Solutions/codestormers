@@ -1,0 +1,41 @@
+name: Build and Test CosmoVerse ASP.NET Core Application
+
+on:
+  push:
+    branches:
+      - main  
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:  
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout code from repository
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Step 2: Setup .NET SDK
+    - name: Set up .NET SDK
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'  
+
+    # Step 3: Restore dependencies for the solution
+    - name: Restore dependencies
+      run: dotnet restore backend/CosmoVerse/CosmoVerse.sln
+
+    # Step 4: Build the solution
+    - name: Build the solution
+      run: dotnet build backend/CosmoVerse/CosmoVerse.sln --configuration Release --no-restore
+
+    # Step 5: Run tests for the solution
+    - name: Run tests
+      run: dotnet test backend/CosmoVerse/CosmoVerse.sln --configuration Release --no-build --verbosity normal
+
+    # Step 6: Publish the application (optional step for deployment)
+    - name: Publish the application
+      run: dotnet publish backend/CosmoVerse/CosmoVerse.sln --configuration Release --output ./publish
