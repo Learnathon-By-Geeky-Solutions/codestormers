@@ -31,9 +31,17 @@ builder.Services.AddSwaggerGen(SetupAction =>
 
 });
 
+
+DotNetEnv.Env.Load();
+
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                       ?? Environment.GetEnvironmentVariable("DATABASECONNECTIONSTRING")
+                       ?? throw new InvalidOperationException("The database connection string is not configured.");
+
 builder.Services.AddDbContext<UserDbContext>(options =>
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DatabaseConnectionString"),
+        connectionString,
         b => b.MigrationsAssembly("CosmoVerse.Infrastructure")).UseLazyLoadingProxies());
 
 
@@ -41,9 +49,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
-        ValidIssuer = builder.Configuration["AppSettings:Issuer"],
+        ValidIssuer = Environment.GetEnvironmentVariable("ISSUER"),
         ValidateAudience = true,
-        ValidAudience = builder.Configuration["AppSettings:Audience"],
+        ValidAudience = Environment.GetEnvironmentVariable("AUDIENCE"),
         ValidateLifetime = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET")!)),
         ValidateIssuerSigningKey = true
@@ -99,7 +107,6 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddInfrastructure(builder.Configuration);
 
-DotNetEnv.Env.Load();
 
 var app = builder.Build();
 

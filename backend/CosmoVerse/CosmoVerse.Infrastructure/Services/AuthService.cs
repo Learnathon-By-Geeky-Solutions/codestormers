@@ -263,8 +263,8 @@ namespace CosmoVerse.Infrastructure.Services
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512); // Create signing credentials
 
             var tokenDescriptor = new JwtSecurityToken(
-                issuer: _configuration["AppSettings:Issuer"],
-                audience: _configuration["AppSettings:Audience"],
+                issuer: Environment.GetEnvironmentVariable("ISSUER"),
+                audience: Environment.GetEnvironmentVariable("AUDIENCE"),
                 claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(30),
                 signingCredentials: creds
