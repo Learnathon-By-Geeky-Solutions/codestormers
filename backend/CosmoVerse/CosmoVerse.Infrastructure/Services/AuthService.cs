@@ -263,8 +263,8 @@ namespace CosmoVerse.Infrastructure.Services
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512); // Create signing credentials
 
             var tokenDescriptor = new JwtSecurityToken(
-                issuer: Environment.GetEnvironmentVariable("ISSUER"),
-                audience: Environment.GetEnvironmentVariable("AUDIENCE"),
+                issuer: Environment.GetEnvironmentVariable("ISSUER") ?? throw new InvalidOperationException("ISSUER not configured"),
+                audience: Environment.GetEnvironmentVariable("AUDIENCE") ?? throw new InvalidOperationException("AUDIENCE not configured"),
                 claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(30),
                 signingCredentials: creds
