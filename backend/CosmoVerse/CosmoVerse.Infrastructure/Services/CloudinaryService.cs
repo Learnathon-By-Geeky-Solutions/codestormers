@@ -12,9 +12,9 @@ namespace CosmoVerse.Infrastructure.Services
         public CloudinaryService(IConfiguration _configuration)
         {
             var cloudinary = new Cloudinary(new Account(
-                Environment.GetEnvironmentVariable("CLOUD_NAME"),
-                Environment.GetEnvironmentVariable("API_KEY"),
-                Environment.GetEnvironmentVariable("API_SECRET")
+                Environment.GetEnvironmentVariable("CLOUD_NAME") ?? throw new InvalidOperationException("CLOUD_NAME is not set"),
+                Environment.GetEnvironmentVariable("API_KEY") ?? throw new InvalidOperationException("API_KEY is not set"),
+                Environment.GetEnvironmentVariable("API_SECRET") ?? throw new InvalidOperationException("API_SECRET is not set")
             ));
             _cloudinary = cloudinary;
         }
