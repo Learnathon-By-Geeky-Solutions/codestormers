@@ -1,0 +1,1480 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "CosmoVerse API",
+    "description": "CosmoVerse API Documentation",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/Admin/create-celestial-system": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Creates a new celestial system.",
+        "description": "This endpoint creates a new celestial system based on the provided details in the request.",
+        "requestBody": {
+          "description": "The details of the celestial system to create.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CelestialSystemDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CelestialSystemDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CelestialSystemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Celestial system created successfully."
+          },
+          "400": {
+            "description": "Failed to create celestial system due to invalid data."
+          },
+          "500": {
+            "description": "An unexpected error occurred while creating the celestial system."
+          }
+        }
+      }
+    },
+    "/api/Admin/update-celestial-system": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Updates an existing celestial system.",
+        "description": "This endpoint allows updating the details of an existing celestial system identified by its unique ID.",
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "query",
+            "description": "The unique identifier of the celestial system to update.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The updated details of the celestial system.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CelestialSystemDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CelestialSystemDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CelestialSystemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Celestial system updated successfully."
+          },
+          "400": {
+            "description": "Invalid celestial system ID or failed to update celestial system due to invalid data."
+          },
+          "500": {
+            "description": "An unexpected error occurred while updating the celestial system."
+          }
+        }
+      }
+    },
+    "/api/Admin/delete-celestial-system/{id}": {
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Deletes an existing celestial system.",
+        "description": "This endpoint allows the deletion of an existing celestial system identified by its unique ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The unique identifier of the celestial system to delete.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Celestial system deleted successfully."
+          },
+          "400": {
+            "description": "Invalid celestial system ID or failed to delete the celestial system."
+          },
+          "404": {
+            "description": "Celestial system with the given ID not found."
+          },
+          "500": {
+            "description": "An unexpected error occurred while deleting the celestial system."
+          }
+        }
+      }
+    },
+    "/api/Admin/create-planet": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Creates a new planet.",
+        "description": "This endpoint creates a new planet based on the details provided in the request body.\r\nIf the planet creation is successful, a 200 OK response is returned. \r\nIf the creation fails due to invalid input or other reasons, a 400 BadRequest is returned.\r\nAny internal server errors during the creation process will result in a 500 InternalServerError.",
+        "requestBody": {
+          "description": "The details of the planet to create.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanetDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanetDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanetDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Planet created successfully."
+          },
+          "400": {
+            "description": "Failed to create planet due to invalid data or other issues."
+          },
+          "500": {
+            "description": "An unexpected error occurred while creating the planet."
+          }
+        }
+      }
+    },
+    "/api/Admin/update-planet/{id}": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Updates an existing planet.",
+        "description": "This endpoint updates the details of an existing planet identified by the provided ID.\r\nIf the update is successful, a 200 OK response is returned.\r\nIf the planet ID is invalid or the update fails for any reason, a 400 BadRequest is returned.\r\nIf the specified planet is not found, a 404 NotFound is returned.\r\nAny internal errors during the update process will result in a 500 InternalServerError.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The unique identifier of the planet to update.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The updated details of the planet.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanetDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanetDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanetDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Planet updated successfully."
+          },
+          "400": {
+            "description": "Failed to update planet due to invalid input or other issues."
+          },
+          "500": {
+            "description": "An unexpected error occurred while updating the planet."
+          }
+        }
+      }
+    },
+    "/api/Admin/delete-planet/{id}": {
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Deletes an existing planet.",
+        "description": "This endpoint deletes an existing planet identified by the provided ID.\r\nIf the deletion is successful, a 200 OK response is returned.\r\nIf the planet ID is invalid or the deletion fails for any reason, a 400 BadRequest is returned.\r\nIf the specified planet is not found, a 404 NotFound is returned.\r\nAny internal errors during the deletion process will result in a 500 InternalServerError.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The unique identifier of the planet to delete.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Planet deleted successfully."
+          },
+          "400": {
+            "description": "Failed to delete planet due to invalid input or other issues."
+          },
+          "500": {
+            "description": "An unexpected error occurred while deleting the planet."
+          }
+        }
+      }
+    },
+    "/api/Admin/create-satellite": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Creates a new satellite.",
+        "description": "This endpoint creates a new satellite using the provided details in the request.\r\nIf the satellite is created successfully, a 200 OK response is returned.\r\nIf the satellite creation fails due to invalid input or other issues, a 400 BadRequest is returned.\r\nAny internal errors that occur during the creation process will result in a 500 InternalServerError.",
+        "requestBody": {
+          "description": "The details of the satellite to create.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SatelliteDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SatelliteDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SatelliteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Satellite created successfully."
+          },
+          "400": {
+            "description": "Failed to create satellite due to invalid input or other issues."
+          },
+          "500": {
+            "description": "An unexpected error occurred while creating the satellite."
+          }
+        }
+      }
+    },
+    "/api/Admin/update-satellite/{id}": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Updates an existing satellite.",
+        "description": "This endpoint updates an existing satellite using the provided unique identifier id and the updated details in request.\r\nIf the satellite is updated successfully, a 200 OK response is returned.\r\nIf the update fails due to invalid input or other issues, a 400 BadRequest is returned.\r\nAny internal errors that occur during the update process will result in a 500 InternalServerError.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The unique identifier of the satellite to update.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The updated details of the satellite.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SatelliteDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SatelliteDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SatelliteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Satellite updated successfully."
+          },
+          "400": {
+            "description": "Failed to update satellite due to invalid input or other issues."
+          },
+          "500": {
+            "description": "An unexpected error occurred while updating the satellite."
+          }
+        }
+      }
+    },
+    "/api/Admin/delete-satellite/{id}": {
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Deletes an existing satellite.",
+        "description": "This endpoint deletes a satellite identified by the provided unique identifier id.\r\nIf the satellite is successfully deleted, a 200 OK response is returned.\r\nIf the deletion fails due to invalid input or other issues, a 400 BadRequest is returned.\r\nAny internal errors that occur during the deletion process will result in a 500 InternalServerError.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The unique identifier of the satellite to delete.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Satellite deleted successfully."
+          },
+          "400": {
+            "description": "Failed to delete satellite due to invalid input or other issues."
+          },
+          "500": {
+            "description": "An unexpected error occurred while deleting the satellite."
+          }
+        }
+      }
+    },
+    "/api/Admin/get-all-users": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Retrieves all users in the system.",
+        "description": "This endpoint retrieves all users from the system. If the retrieval is successful, a 200 OK response is returned with a list of users.\r\nIf an unexpected error occurs during the retrieval process, a 500 InternalServerError response is returned.",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the list of users.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred while retrieving the users."
+          }
+        }
+      }
+    },
+    "/api/Admin/delete-user/{id}": {
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Deletes an existing user from the system.",
+        "description": "This endpoint deletes the user from the system using their unique ID. \r\nIf the ID is invalid or the user is not found, an appropriate error response is returned. \r\nIf the deletion is successful, a 200 OK response is returned.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The unique identifier of the user to delete.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted the user."
+          },
+          "400": {
+            "description": "Invalid user ID provided."
+          },
+          "404": {
+            "description": "User not found in the system."
+          },
+          "500": {
+            "description": "An unexpected error occurred while deleting the user."
+          }
+        }
+      }
+    },
+    "/api/Auth/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Registers a new user in the system.",
+        "description": "Upon successful registration, a verification email is sent to the user's email address.\r\nThe user's ID is included in the location header of the created resource.",
+        "requestBody": {
+          "description": "An object containing the user's registration details, such as name, email, and password.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "If the user is successfully registered and a verification email is sent."
+          },
+          "400": {
+            "description": "If the provided input is invalid."
+          },
+          "500": {
+            "description": "If an unexpected error occurs during registration or email verification."
+          }
+        }
+      }
+    },
+    "/api/Auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Authenticates a user using their login credentials.",
+        "description": "This endpoint sets the access token and refresh token in the user's cookies upon successful login.",
+        "requestBody": {
+          "description": "An object containing the user's email and password for login.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLoginDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLoginDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "If authentication succeeds, returns the access and refresh tokens.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "If authentication fails due to invalid credentials."
+          },
+          "500": {
+            "description": "If an unexpected error occurs during authentication."
+          }
+        }
+      }
+    },
+    "/api/Auth/User": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Retrieves the currently authenticated user's information.",
+        "description": "This endpoint requires the user to be authenticated.\r\nThe user's ID is extracted from the claims provided by the authentication token.",
+        "responses": {
+          "200": {
+            "description": "Returns the user information if the user is successfully authenticated and found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Returns if the user ID claim is missing or invalid, indicating an unauthorized request."
+          },
+          "404": {
+            "description": "Returns if no user is found with the given ID."
+          }
+        }
+      }
+    },
+    "/api/Auth/update-user": {
+      "put": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Updates the currently authenticated user's profile information.",
+        "description": "This endpoint requires the user to be authenticated. The user's ID is extracted from the authentication token,\r\nand their profile is updated based on the provided CosmoVerse.Application.DTOs.UpdateProfileDto.",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "Name": {
+                    "type": "string"
+                  },
+                  "ProfilePicture": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "Name": {
+                  "style": "form"
+                },
+                "ProfilePicture": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The user's profile is successfully updated."
+          },
+          "401": {
+            "description": "The user is not authenticated, or their ID claim is missing."
+          },
+          "400": {
+            "description": "The request data is invalid."
+          },
+          "500": {
+            "description": "An unexpected error occurs during the update process."
+          }
+        }
+      }
+    },
+    "/api/Auth/refresh-token": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Refreshes the user's access token using a valid refresh token from the cookies.",
+        "description": "This endpoint requires the refresh token to be present in the user's cookies.\r\nIf the refresh token is valid, new access and refresh tokens are generated and set in the cookies.",
+        "responses": {
+          "200": {
+            "description": "If the refresh token is valid and the new tokens are generated successfully.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "If no valid refresh token is found in the cookies or the token is expired."
+          },
+          "400": {
+            "description": "If the refresh token is invalid or the tokens cannot be refreshed for any reason."
+          }
+        }
+      }
+    },
+    "/api/Auth/Sent-verification-email": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Sends a verification email to the authenticated user.",
+        "description": "This endpoint requires the user to be authenticated. Upon successful authentication, a verification email is sent to the user's registered email address.",
+        "responses": {
+          "200": {
+            "description": "If the verification email is sent successfully."
+          },
+          "401": {
+            "description": "If the user is not authenticated."
+          },
+          "500": {
+            "description": "If an error occurs during the email sending process."
+          }
+        }
+      }
+    },
+    "/api/Auth/verify-email": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Verifies the user's email address using a verification token.",
+        "description": "This endpoint allows the user to verify their email address by providing their email and associated verification token.",
+        "requestBody": {
+          "description": "An object containing the user's email and the verification token required to verify the user's email address.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyEmailDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyEmailDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyEmailDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "If the email is successfully verified."
+          },
+          "500": {
+            "description": "If there is an error during the email verification process."
+          }
+        }
+      }
+    },
+    "/api/Auth/request-password-reset": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Initiates the password reset process by sending a password reset email to the provided email address.",
+        "description": "This endpoint is used to request a password reset. A reset email with a link to reset the password will be sent to the specified email address.",
+        "requestBody": {
+          "description": "The email address associated with the user's account. A valid, non-empty email address is required to send the reset email.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "If the password reset email is sent successfully."
+          },
+          "400": {
+            "description": "If the provided email address is invalid or empty."
+          },
+          "500": {
+            "description": "If an error occurs during the email sending process."
+          }
+        }
+      }
+    },
+    "/api/Auth/reset-password": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Resets the user's password using a provided token and new password.",
+        "description": "This endpoint allows the user to reset their password after providing a valid reset token.\r\nThe token is typically sent via email when the user requests a password reset.",
+        "requestBody": {
+          "description": "The password reset request containing the user's email address, reset token, and new password.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordResetDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordResetDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordResetDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "If the password is successfully reset."
+          },
+          "400": {
+            "description": "If the provided email or reset token is invalid or expired."
+          },
+          "404": {
+            "description": "If the email address is not found in the system."
+          },
+          "500": {
+            "description": "If an unexpected error occurs during the password reset process."
+          }
+        }
+      }
+    },
+    "/api/Auth/Logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Logs the current user out by clearing the authentication tokens from the session.\r\nThis operation removes the user's access and refresh tokens, effectively ending their session.",
+        "description": "This endpoint clears the user's authentication cookies (access token and refresh token),\r\neffectively logging the user out and ending their session. No further requests will be authorized\r\nuntil the user logs in again.",
+        "responses": {
+          "200": {
+            "description": "If the user was logged out successfully."
+          },
+          "500": {
+            "description": "If the logout request is malformed or the operation fails."
+          }
+        }
+      }
+    },
+    "/api/Celestial/get-all-celestials": {
+      "get": {
+        "tags": [
+          "Celestial"
+        ],
+        "summary": "Retrieves a list of all celestial bodies from the system.",
+        "responses": {
+          "200": {
+            "description": "Returns a list of celestial bodies.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while processing the request."
+          }
+        }
+      }
+    },
+    "/api/Celestial/{id}": {
+      "get": {
+        "tags": [
+          "Celestial"
+        ],
+        "summary": "Retrieves a specific celestial body by its unique identifier.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The unique identifier of the celestial body to retrieve.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieves the requested celestial body."
+          },
+          "400": {
+            "description": "The provided celestial body ID is invalid."
+          },
+          "404": {
+            "description": "No celestial body is found with the specified ID."
+          },
+          "500": {
+            "description": "An unexpected server error occurred while processing the request."
+          }
+        }
+      }
+    },
+    "/api/Planet/get-all-planets": {
+      "get": {
+        "tags": [
+          "Planet"
+        ],
+        "summary": "Retrieves a list of all planets in the system.",
+        "responses": {
+          "200": {
+            "description": "Returns a list of planets."
+          },
+          "500": {
+            "description": "An unexpected error occurred while processing the request."
+          }
+        }
+      }
+    },
+    "/api/Planet/{planetId}": {
+      "get": {
+        "tags": [
+          "Planet"
+        ],
+        "summary": "Retrieves the details of a specific planet by its unique identifier.",
+        "parameters": [
+          {
+            "name": "planetId",
+            "in": "path",
+            "description": "The unique identifier of the planet to retrieve.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested planet details are successfully retrieved."
+          },
+          "400": {
+            "description": "The request is invalid, typically due to an empty or improperly formatted planet ID."
+          },
+          "404": {
+            "description": "No planet is found with the specified ID."
+          },
+          "500": {
+            "description": "An unexpected server error occurred while processing the request."
+          }
+        }
+      }
+    },
+    "/api/Satellite/get-all-satellites": {
+      "get": {
+        "tags": [
+          "Satellite"
+        ],
+        "summary": "Retrieves a list of all satellites in the system.",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieves the list of satellites."
+          },
+          "500": {
+            "description": "An unexpected server error occurred while processing the request."
+          }
+        }
+      }
+    },
+    "/api/Satellite/{satelliteId}": {
+      "get": {
+        "tags": [
+          "Satellite"
+        ],
+        "summary": "Retrieves a specific satellite by its unique identifier.",
+        "parameters": [
+          {
+            "name": "satelliteId",
+            "in": "path",
+            "description": "The unique identifier of the satellite to retrieve.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieves the requested satellite.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SatelliteInfoDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SatelliteInfoDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SatelliteInfoDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The provided satellite ID is invalid."
+          },
+          "404": {
+            "description": "No satellite is found with the specified ID."
+          },
+          "500": {
+            "description": "An unexpected server error occurred while processing the request."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CelestialSystemDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "structure": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EmailVerification": {
+        "required": [
+          "email",
+          "expiryTime",
+          "token"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "email": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "token": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "expiryTime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PasswordReset": {
+        "required": [
+          "email",
+          "expiryDate",
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "email": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          },
+          "expiryDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PasswordResetDto": {
+        "required": [
+          "email",
+          "newPassword",
+          "token"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "token": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "newPassword": {
+            "maxLength": 100,
+            "minLength": 8,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PlanetDto": {
+        "type": "object",
+        "properties": {
+          "introduction": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "namesake": {
+            "type": "string",
+            "nullable": true
+          },
+          "sizeAndDistance": {
+            "type": "string",
+            "nullable": true
+          },
+          "moons": {
+            "type": "string",
+            "nullable": true
+          },
+          "orbitAndRotation": {
+            "type": "string",
+            "nullable": true
+          },
+          "rings": {
+            "type": "string",
+            "nullable": true
+          },
+          "structure": {
+            "type": "string",
+            "nullable": true
+          },
+          "formation": {
+            "type": "string",
+            "nullable": true
+          },
+          "surface": {
+            "type": "string",
+            "nullable": true
+          },
+          "potentialForLife": {
+            "type": "string",
+            "nullable": true
+          },
+          "atmosphere": {
+            "type": "string",
+            "nullable": true
+          },
+          "magnetosphere": {
+            "type": "string",
+            "nullable": true
+          },
+          "celestialSystemId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProfilePhoto": {
+        "required": [
+          "publicId",
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "url": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "publicId": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SatelliteDto": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "size": {
+            "type": "number",
+            "format": "double"
+          },
+          "distanceFromPlanet": {
+            "type": "number",
+            "format": "double"
+          },
+          "orbitalPeriod": {
+            "type": "number",
+            "format": "double"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "planetId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SatelliteInfoDto": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "size": {
+            "type": "number",
+            "format": "double"
+          },
+          "distanceFromPlanet": {
+            "type": "number",
+            "format": "double"
+          },
+          "orbitalPeriod": {
+            "type": "number",
+            "format": "double"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TokenResponseDto": {
+        "required": [
+          "accessToken",
+          "refreshToken"
+        ],
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "nullable": true
+          },
+          "refreshToken": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "User": {
+        "required": [
+          "email",
+          "name",
+          "passwordHash"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string"
+          },
+          "email": {
+            "maxLength": 256,
+            "minLength": 0,
+            "type": "string"
+          },
+          "isEmailVerified": {
+            "type": "boolean"
+          },
+          "passwordHash": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "nullable": true
+          },
+          "refreshToken": {
+            "type": "string",
+            "nullable": true
+          },
+          "refreshTokenExpiryTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "emailVerification": {
+            "$ref": "#/components/schemas/EmailVerification"
+          },
+          "passwordReset": {
+            "$ref": "#/components/schemas/PasswordReset"
+          },
+          "profilePhoto": {
+            "$ref": "#/components/schemas/ProfilePhoto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserDto": {
+        "required": [
+          "email",
+          "name",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "email": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 100,
+            "minLength": 8,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserLoginDto": {
+        "required": [
+          "email",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 100,
+            "minLength": 8,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "VerifyEmailDto": {
+        "required": [
+          "email",
+          "token"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "token": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "description": "Please enter token",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "Bearer": [ ]
+    }
+  ]
+}
