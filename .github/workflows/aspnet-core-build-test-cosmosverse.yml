@@ -13,6 +13,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
     # Step 1: Checkout code from repository
     - name: Checkout code
