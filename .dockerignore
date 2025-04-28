@@ -1,0 +1,23 @@
+# Ignore the bin and obj folders which are generated during build
+**/bin/
+**/obj/
+
+# Ignore Dockerfile and other related files
+Dockerfile
+.dockerignore
+
+# Ignore any temporary files or directories
+.vscode/
+.idea/
+*.log
+*.user
+
+# Ignore project-related files that are not needed in the container
+**/*.userosscache
+**/*.suo
+**/*.user
+**/*.dbmdl
+
+# Ignore build output or other local development-related files
+*.sln
+*.swp
