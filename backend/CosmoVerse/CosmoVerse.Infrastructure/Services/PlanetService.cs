@@ -60,7 +60,19 @@ namespace CosmoVerse.Infrastructure.Services
                 selector: planet => new
                 {
                     planet.Id,
-                    planet.Name
+                    planet.Name,
+                    planet.Introduction,
+                    planet.Namesake,
+                    planet.PotentialForLife,
+                    planet.SizeAndDistance,
+                    planet.OrbitAndRotation,
+                    planet.Moons,
+                    planet.Rings,
+                    planet.Formation,
+                    planet.Structure,
+                    planet.Surface,
+                    planet.Atmosphere,
+                    planet.Magnetosphere,
                 }
                 );
             return planets.Cast<object>().ToList();

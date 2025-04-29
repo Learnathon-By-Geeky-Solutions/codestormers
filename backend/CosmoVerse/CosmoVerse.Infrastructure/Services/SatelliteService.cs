@@ -59,6 +59,10 @@ namespace CosmoVerse.Infrastructure.Services
                 {
                     satellite.Id,
                     satellite.Name,
+                    satellite.Size,
+                    satellite.DistanceFromPlanet,
+                    satellite.OrbitalPeriod,
+                    satellite.Description
                 }
                 );
             return satellites.Cast<object>().ToList();
