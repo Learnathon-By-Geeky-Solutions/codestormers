@@ -61,6 +61,10 @@ namespace CosmoVerse.Controllers
 
                 return Created($"/api/users/{user.Id}", null); 
             }
+            catch (InvalidOperationException ex) when (ex.Message == "Email already exists")
+            {
+                return Conflict(new { message = "Email already exists. Please use a different email address." });
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, "An unexpected error occurred. Please try again later.");
@@ -409,7 +413,7 @@ namespace CosmoVerse.Controllers
             {
                 HttpOnly = true, // Prevents JavaScript access to the cookie
                 Secure = true,   // Ensures the cookie is sent over HTTPS
-                SameSite = SameSiteMode.Strict, // Prevent CSRF
+                SameSite = SameSiteMode.None, 
                 Expires = DateTime.UtcNow.AddMinutes(30) // Cookie expiration
             };
 
@@ -421,7 +425,7 @@ namespace CosmoVerse.Controllers
             {
                 HttpOnly = true, // Prevents JavaScript access to the cookie
                 Secure = true,   // Ensures the cookie is sent over HTTPS
-                SameSite = SameSiteMode.Strict, // Prevent CSRF
+                SameSite = SameSiteMode.None, 
                 Expires = DateTime.UtcNow.AddDays(30) // Expiration for RefreshToken
             };
 
