@@ -10,10 +10,12 @@ using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Load environment variables
+DotNetEnv.Env.Load();
 
+// Add services to the container.
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(SetupAction =>
 {
@@ -24,43 +26,13 @@ builder.Services.AddSwaggerGen(SetupAction =>
         Description = "CosmoVerse API Documentation"
     });
 
+    // Include XML comments for better API documentation
     var xmlCommentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlCommentsPath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFile);
-
     SetupAction.IncludeXmlComments(xmlCommentsPath);
 
-});
-
-
-DotNetEnv.Env.Load();
-
-
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-                       ?? Environment.GetEnvironmentVariable("DATABASECONNECTIONSTRING")
-                       ?? throw new InvalidOperationException("The database connection string is not configured.");
-
-builder.Services.AddDbContext<UserDbContext>(options =>
-    options.UseSqlServer(
-        connectionString,
-        b => b.MigrationsAssembly("CosmoVerse.Infrastructure")).UseLazyLoadingProxies());
-
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidIssuer = Environment.GetEnvironmentVariable("ISSUER"),
-        ValidateAudience = true,
-        ValidAudience = Environment.GetEnvironmentVariable("AUDIENCE"),
-        ValidateLifetime = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET")!)),
-        ValidateIssuerSigningKey = true
-    }
-);
-
-builder.Services.AddSwaggerGen(options =>
-{
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    // Swagger Security Definition for Bearer token
+    SetupAction.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
         Description = "Please enter token",
@@ -69,12 +41,14 @@ builder.Services.AddSwaggerGen(options =>
         BearerFormat = "JWT",
         Scheme = "bearer"
     });
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+
+    // Swagger Security Requirement
+    SetupAction.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
-        new OpenApiSecurityScheme
-        {
-            Reference = new OpenApiReference
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
                 {
                     Type = ReferenceType.SecurityScheme,
                     Id = "Bearer"
@@ -85,51 +59,90 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+// Database connection string
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                       ?? Environment.GetEnvironmentVariable("DATABASECONNECTIONSTRING")
+                       ?? throw new InvalidOperationException("The database connection string is not configured.");
+
+// Add DbContext with lazy loading proxies
+builder.Services.AddDbContext<UserDbContext>(options =>
+    options.UseSqlServer(connectionString, b => b.MigrationsAssembly("CosmoVerse.Infrastructure"))
+           .UseLazyLoadingProxies());
+
+// Authentication and Authorization configuration
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidIssuer = Environment.GetEnvironmentVariable("ISSUER"),
+        ValidateAudience = true,
+        ValidAudience = Environment.GetEnvironmentVariable("AUDIENCE"),
+        ValidateLifetime = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET")!)),
+        ValidateIssuerSigningKey = true
+    };
+
+    // Custom logic to retrieve the token from cookies
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            if (context.Request.Cookies.ContainsKey("AccessToken"))
+            {
+                context.Token = context.Request.Cookies["AccessToken"];
+            }
+            return Task.CompletedTask;
+        }
+    };
+});
+
+// CORS configuration based on environment variable
+var allowedOrigins = Environment.GetEnvironmentVariable("ALLOWED_ORIGINS")?.Split(',', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAllOrigins", policyBuilder =>
+    options.AddPolicy("AllowSpecificOrigins", policyBuilder =>
     {
-        policyBuilder.WithOrigins("http://localhost:3000")  
-                     .AllowAnyMethod()   // Allow any HTTP method (GET, POST, etc.)
-                     .AllowAnyHeader()  // Allow any headers
-                     .AllowCredentials(); // Allow credentials (cookies, etc)
+        policyBuilder.WithOrigins(allowedOrigins)
+                     .AllowAnyMethod()
+                     .AllowAnyHeader()
+                     .AllowCredentials(); // Required to allow cookies and credentials
     });
 });
 
+// Add Authorization policies
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("AdminOnly", policy => 
-    policy.RequireRole("Admin"));
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireRole("Admin"));
 });
 
 builder.Services.AddHttpContextAccessor();
 
-
 builder.Services.AddInfrastructure(builder.Configuration);
-
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
+    // Enable Swagger in Development environment
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "CosmoVerse API V1");
-        c.RoutePrefix = "swagger";  // Set Swagger UI at the app's root
-    }
-    );
+        c.RoutePrefix = string.Empty;  // Swagger UI at the root of the app
+    });
 }
 
-app.UseCors("AllowAllOrigins");
+app.UseCors("AllowSpecificOrigins"); 
 
-app.UseHttpsRedirection();
+app.UseHttpsRedirection();  
 
 app.UseAuthentication();
 
-app.UseAuthorization();
+app.UseAuthorization(); 
 
 app.MapControllers();
 
-app.Run();
+app.Run(); 
