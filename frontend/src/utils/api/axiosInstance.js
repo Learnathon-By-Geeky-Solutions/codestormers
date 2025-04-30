@@ -1,19 +1,24 @@
 import axios from "axios";
 
+// Helper function to read a cookie by name
+const getCookie = (name) => {
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  return match ? decodeURIComponent(match[2]) : null;
+};
+
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5083", // Change to your API URL
+  baseURL: "http://localhost:5083", // Your API base URL
   timeout: 10000, // 10 seconds timeout
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true, 
+  withCredentials: true, // Send cookies with requests
 });
 
-// Optional: Add an interceptor for requests
+// Add request interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
-    // Add auth token if needed
-    const token = localStorage.getItem("token");
+    const token = getCookie("AccessToken"); // Get token from cookie
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -22,11 +27,11 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Optional: Add an interceptor for responses
+// Add response interceptor
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error("API Error:", error);
+    console.error("API Error:", error.response || error.message);
     return Promise.reject(error);
   }
 );

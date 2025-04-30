@@ -7,7 +7,7 @@ namespace CosmoVerse.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class SatelliteController : ControllerBase
     {
         private readonly ISatelliteService _satelliteService;

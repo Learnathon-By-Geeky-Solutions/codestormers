@@ -54,7 +54,10 @@ namespace CosmoVerse.Infrastructure.Services
                 selector: celestial => new
                 {
                     Id = celestial.Id,
-                    Name = celestial.Name
+                    Name = celestial.Name,
+                    Description = celestial.Description,
+                    Type = celestial.Type,
+                    Structure = celestial.Structure,
                 } 
                 );
 

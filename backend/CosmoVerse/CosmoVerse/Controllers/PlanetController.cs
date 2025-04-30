@@ -6,7 +6,7 @@ namespace CosmoVerse.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    //[Authorize]
     public class PlanetController : ControllerBase
     {
         private readonly IPlanetService _planetService;

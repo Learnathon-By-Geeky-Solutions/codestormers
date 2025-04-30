@@ -1,12 +1,18 @@
 import React, { useState } from "react";
 import { X, Menu } from "lucide-react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import AtomLogo from "./solar_Model/AtomLogo";
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { pathname } = useLocation();
 
+  console.log(pathname);
+
+  if (pathname === "/user-dashboard" || pathname==="/admin-dashboard") {
+    return null;
+  }
   return (
     <>
       {/* Navbar */}
