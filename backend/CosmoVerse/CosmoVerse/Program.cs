@@ -131,7 +131,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "CosmoVerse API V1");
-        c.RoutePrefix = string.Empty;  // Swagger UI at the root of the app
+        c.RoutePrefix = "swagger";  
     });
 }
 

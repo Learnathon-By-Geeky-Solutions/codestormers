@@ -133,13 +133,18 @@ namespace CosmoVerse.Infrastructure.Services
             string subject = "Verify your email";
             string message = $@"
             <html>
-            <body>
-                <p>Hi there,</p>
-                <p>Thank you for registering with us. Please click the button below to verify your email address.</p>
-                <a href='http://localhost:3000/verification-page?email={user.Email}&token={token}' style='background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; font-size: 16px; border-radius: 5px;'>Verify Email</a>
-                <p>If you didn't sign up for this account, please ignore this email.</p>
+            <body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+            <p>Hi there,</p>
+            <p>Thank you for registering with us. Please click the button below to verify your email address:</p>
+            <a href='{Environment.GetEnvironmentVariable("ALLOWED_ORIGINS")}/verification-page?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}' 
+            style='display: inline-block; background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; font-size: 16px; border-radius: 5px; margin: 10px 0;'>
+            Verify Email
+            </a>
+            <p>If you didn't sign up for this account, please ignore this email.</p>
+            <p>Regards,<br/>CosmoVerse</p>
             </body>
             </html>";
+
 
             // Send email
             var response = await SendEmailAsync(user.Email, subject, message);
