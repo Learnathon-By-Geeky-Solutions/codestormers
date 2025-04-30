@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import axiosInstance from "../utils/api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { toast } from "react-toastify";
 
 const TwinklingStars = () => {
   const groupRef = useRef();
@@ -78,7 +79,7 @@ const Signup = () => {
       !user.password ||
       !user.confirmpassword
     ) {
-      alert("Please fill all fields");
+      toast.warning("Please fill all fields");
       return;
     }
 
@@ -86,7 +87,7 @@ const Signup = () => {
     const emailPattern =
       /^[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com|hotmail\.com|outlook\.com)$/;
     if (!emailPattern.test(user.email)) {
-      alert(
+      toast.error(
         "Please enter a valid Gmail, Yahoo, Hotmail, or Outlook email address"
       );
       return;
@@ -95,14 +96,14 @@ const Signup = () => {
     // Validate password (at least 1 special character, 1 number, min length 8)
     const passwordPattern = /^(?=.*[!@#$%^&*])(?=.*\d).{8,}$/;
     if (!passwordPattern.test(user.password)) {
-      alert(
+      toast.error(
         "Password must be at least 8 characters long and include at least one special character and one number"
       );
       return;
     }
 
     if (user.password !== user.confirmpassword) {
-      alert("Password and Confirm Password do not match");
+      toast.error("Password and Confirm Password do not match");
       return;
     }
 

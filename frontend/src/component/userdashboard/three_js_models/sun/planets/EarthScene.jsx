@@ -4,7 +4,7 @@ import { Sphere, Stars, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 
 // Import your textures
-import earthTexture from "../../../../../assets/imgs/solar/mars.jpg";
+import earthTexture from "../../../../../assets/imgs/solar/earth.jpg";
 import moonTexture from "../../../../../assets/imgs/solar/moon.jpg"; // (fix: should be moon texture!)
 
 const Earth = () => {

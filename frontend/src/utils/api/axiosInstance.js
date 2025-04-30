@@ -5,9 +5,10 @@ const getCookie = (name) => {
   const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
   return match ? decodeURIComponent(match[2]) : null;
 };
-
+// const SERVER_URL = "http://localhost:5083"; 
+const SERVER_URL = "https://cosmo-verse.up.railway.app"; 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5083", // Your API base URL
+  baseURL: SERVER_URL, // Your API base URL
   timeout: 10000, // 10 seconds timeout
   headers: {
     "Content-Type": "application/json",

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaPlus, FaEdit, FaTrash, FaSpinner } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaSpinner, FaSearch } from 'react-icons/fa';
 import CelestialSystemForm from './forms/CelestialSystemForm';
 import { toast } from 'react-toastify';
 import axiosInstance from '../../utils/api/axiosInstance';
@@ -134,7 +134,7 @@ const CelestialSystems = ({ isCreating, setIsCreating, editingItem, setEditingIt
   
     {/* Systems Grid */}
     {celestialSystems.length === 0 ? (
-      <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-sm text-center">
+      <div className="bg-slate-800 p-8 rounded-xl border border-slate-200 shadow-sm text-center">
         <div className="text-slate-400 mb-2">
           <FaSearch className="text-4xl mx-auto" />
         </div>
